@@ -13,4 +13,9 @@ public class PuestoDesarmable extends UnidadDeVenta {
 
 	// En minutos
 	private int tiempoMontaje;
+
+	@Override
+	public String getTipo() {
+		return "Puesto Desarmable";
+	}
 }

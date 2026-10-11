@@ -58,4 +58,7 @@ public abstract class UnidadDeVenta {
 	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "unidad_id", nullable = false)
 	private Set<Pedido> pedidos = new HashSet<>();
+
+	// Polimorfismo: cada subclase informa su tipo. No es una columna (JPA mapea los atributos, no los métodos)
+	public abstract String getTipo();
 }

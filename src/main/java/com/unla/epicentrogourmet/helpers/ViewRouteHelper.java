@@ -7,8 +7,19 @@ public class ViewRouteHelper {
 
 	//USER
 	public final static String USER_LOGIN = "user/login";
-	public final static String USER_LOGOUT = "user/logout";
+
+	//ADMIN
+	public final static String ADMIN_INDEX = "admin/index";
+
+	//RESPONSABLE
+	public final static String RESPONSABLE_INDEX = "responsable/index";
+
+	//EMPLEADO
+	public final static String EMPLEADO_INDEX = "empleado/index";
 
 	/**** Redirects ****/
 	public final static String ROUTE = "/index";
+	public final static String ADMIN_ROOT = "/admin/index";
+	public final static String RESPONSABLE_ROOT = "/responsable/index";
+	public final static String EMPLEADO_ROOT = "/empleado/index";
 }

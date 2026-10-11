@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head th:replace="~{layout :: head}"></head>
 <body>
     <nav th:replace="~{layout :: navbar}"></nav>
@@ -8,7 +8,49 @@
         <div class="hero-section text-center">
             <div class="container">
                 <h1>Epicentro Gourmet</h1>
-                <p class="mb-4">Sistema de gestion de festivales gastronomicos</p>
+                <p class="mb-4">Festivales gastronómicos en el centro de convenciones y predio ferial</p>
+                <div sec:authorize="isAnonymous()">
+                    <a class="btn btn-light mr-2" th:href="@{/registro}">Registrar unidad de venta</a>
+                    <a class="btn btn-outline-light" th:href="@{/login}">Iniciar sesión</a>
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${#lists.isEmpty(festivales)}" class="alert alert-info">
+            Todavía no hay festivales cargados.
+        </div>
+
+        <div class="card mb-4" th:each="festival : ${festivales}">
+            <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                <h4 class="mb-0" th:text="${festival.nombre}">Festival</h4>
+                <span class="badge badge-light" th:text="${festival.temporada}">Temporada</span>
+            </div>
+            <div class="card-body">
+                <p class="mb-3">
+                    <strong>Del</strong> <span th:text="${#temporals.format(festival.fechaInicio, 'dd/MM/yyyy')}">01/10/2026</span>
+                    <strong>al</strong> <span th:text="${#temporals.format(festival.fechaFin, 'dd/MM/yyyy')}">15/11/2026</span>
+                </p>
+
+                <h5>Unidades de venta</h5>
+                <p class="text-muted" th:if="${#sets.isEmpty(festival.unidades)}">Todavía no hay unidades registradas.</p>
+                <div class="table-responsive" th:unless="${#sets.isEmpty(festival.unidades)}">
+                    <table class="table table-striped mb-0">
+                        <thead>
+                            <tr>
+                                <th>Nombre comercial</th>
+                                <th>Tipo</th>
+                                <th>Superficie</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="unidad : ${festival.unidades}">
+                                <td th:text="${unidad.nombreComercial}">Unidad</td>
+                                <td th:text="${unidad.tipo}">Tipo</td>
+                                <td th:text="${unidad.superficie} + ' m²'">0 m²</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </main>

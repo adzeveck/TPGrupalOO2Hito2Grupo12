@@ -14,4 +14,9 @@ public class FoodTruck extends UnidadDeVenta {
 	private String patente;
 
 	private boolean requiereElectricidad;
+
+	@Override
+	public String getTipo() {
+		return "Food Truck";
+	}
 }

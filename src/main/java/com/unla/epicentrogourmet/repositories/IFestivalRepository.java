@@ -1,10 +1,17 @@
 package com.unla.epicentrogourmet.repositories;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import com.unla.epicentrogourmet.entities.Festival;
 
 @Repository("festivalRepository")
 public interface IFestivalRepository extends JpaRepository<Festival, Integer> {
+
+	// Trae cada festival con sus unidades en una sola consulta (la colección es LAZY)
+	@Query("SELECT DISTINCT f FROM Festival f LEFT JOIN FETCH f.unidades ORDER BY f.fechaInicio")
+	List<Festival> findAllWithUnidades();
 }

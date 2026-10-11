@@ -7,15 +7,24 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
 import com.unla.epicentrogourmet.helpers.ViewRouteHelper;
+import com.unla.epicentrogourmet.services.IFestivalService;
 
 @Controller
 @RequestMapping("/")
 public class HomeController {
 
-	//GET Example: SERVER/index
+	private final IFestivalService festivalService;
+
+	public HomeController(IFestivalService festivalService) {
+		this.festivalService = festivalService;
+	}
+
+	// Página pública: info de los festivales precargados
 	@GetMapping("/index")
 	public ModelAndView index() {
-		return new ModelAndView(ViewRouteHelper.INDEX);
+		ModelAndView modelAndView = new ModelAndView(ViewRouteHelper.INDEX);
+		modelAndView.addObject("festivales", festivalService.getAllWithUnidades());
+		return modelAndView;
 	}
 
 	@GetMapping("/")
