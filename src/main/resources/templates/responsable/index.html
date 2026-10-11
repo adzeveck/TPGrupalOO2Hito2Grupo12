@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{layout :: head}"></head>
+<body>
+    <nav th:replace="~{layout :: navbar}"></nav>
+
+    <main class="container py-4">
+        <div class="page-header mb-4">
+            <h2>Mi unidad de venta</h2>
+            <p class="text-muted mb-0">Sesión iniciada como <strong sec:authentication="name">usuario</strong></p>
+        </div>
+
+        <div class="card">
+            <div class="card-header">Acciones del responsable</div>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">Empleados: alta, baja, modificación y filtros</li>
+                <li class="list-group-item">Alta de platos</li>
+                <li class="list-group-item">Canon de la unidad</li>
+                <li class="list-group-item">Liquidación de haberes</li>
+                <li class="list-group-item">Reporte de recaudación</li>
+                <li class="list-group-item">Rentabilidad neta (total y entre dos fechas)</li>
+                <li class="list-group-item">Plato estrella</li>
+            </ul>
+        </div>
+    </main>
+
+    <footer th:replace="~{layout :: footer}"></footer>
+    <div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>

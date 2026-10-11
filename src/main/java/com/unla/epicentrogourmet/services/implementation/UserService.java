@@ -28,6 +28,9 @@ public class UserService implements UserDetailsService {
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		com.unla.epicentrogourmet.entities.User user = userRepository.findByUsernameAndFetchUserRolesEagerly(username);
+		if (user == null) {
+			throw new UsernameNotFoundException("No existe el usuario " + username);
+		}
 		return buildUser(user, buildGrantedAuthorities(user.getUserRoles()));
 	}
 

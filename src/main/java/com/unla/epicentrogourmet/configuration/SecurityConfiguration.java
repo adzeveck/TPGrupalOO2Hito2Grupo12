@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -33,8 +34,15 @@ public class SecurityConfiguration {
 				.csrf(AbstractHttpConfigurer::disable)
 				.cors(AbstractHttpConfigurer::disable)
 				.authorizeHttpRequests(auth -> {
-					auth.requestMatchers("/css/*", "/imgs/*", "/js/*", "/vendor/bootstrap/css/*",
-							"/vendor/jquery/*", "/vendor/bootstrap/js/*", "/api/v1/**").permitAll();
+					// Recursos estáticos y páginas públicas (visitante sin sesión)
+					auth.requestMatchers("/css/**", "/imgs/**", "/js/**", "/vendor/**").permitAll();
+					// "/login" explícito: permitAll() del formLogin solo libera las URLs exactas (con su query),
+					// y sin esto /login?disabled o /login?error volverían a redirigir a /login sin el mensaje
+					auth.requestMatchers("/", "/index", "/login", "/registro/**", "/error/**").permitAll();
+					// Cada rol tiene su prefijo de rutas. hasRole('ADMIN') busca la autoridad ROLE_ADMIN
+					auth.requestMatchers("/admin/**").hasRole("ADMIN");
+					auth.requestMatchers("/responsable/**").hasRole("RESPONSABLE");
+					auth.requestMatchers("/empleado/**").hasRole("EMPLEADO");
 					auth.anyRequest().authenticated();
 				})
 				.formLogin(login -> {
@@ -42,12 +50,16 @@ public class SecurityConfiguration {
 					login.loginProcessingUrl("/loginprocess");
 					login.usernameParameter("username");
 					login.passwordParameter("password");
-					login.defaultSuccessUrl("/loginsuccess");
+					// true: después del login siempre pasa por /loginsuccess, que redirige según el rol
+					login.defaultSuccessUrl("/loginsuccess", true);
+					// Un usuario dado de baja (enabled = false) ve un mensaje distinto al de credenciales inválidas
+					login.failureHandler((request, response, exception) ->
+							response.sendRedirect(exception instanceof DisabledException ? "/login?disabled" : "/login?error"));
 					login.permitAll();
 				})
 				.logout(logout -> {
 					logout.logoutUrl("/logout");
-					logout.logoutSuccessUrl("/login");
+					logout.logoutSuccessUrl("/login?logout");
 					logout.permitAll();
 				})
 				.build();
@@ -71,4 +83,3 @@ public class SecurityConfiguration {
 		return new BCryptPasswordEncoder();
 	}
 }
-
