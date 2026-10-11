@@ -26,7 +26,7 @@ public class UserRole {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private int id;
+	private Integer id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name="user_id", nullable=false)
@@ -41,7 +41,7 @@ public class UserRole {
 	@UpdateTimestamp
 	private LocalDateTime updatedAt;
 
-	public UserRole(int id, User user, String role) {
+	public UserRole(Integer id, User user, String role) {
 		this.id = id;
 		this.user = user;
 		this.role = role;

@@ -7,6 +7,7 @@ import java.util.Set;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -24,9 +25,9 @@ public class User {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private int id;
+	private Integer id;
 
-	@Column(name="username", unique=true, nullable=false, length=45)
+	@Column(name="username", unique=true, nullable=false, length=100)
 	private String username;
 
 	@Column(name="password", nullable=false, length=60)
@@ -40,7 +41,7 @@ public class User {
 	@UpdateTimestamp
 	private LocalDateTime updatedAt;
 
-	@OneToMany(fetch=FetchType.LAZY, mappedBy="user")
+	@OneToMany(fetch=FetchType.LAZY, mappedBy="user", cascade=CascadeType.ALL, orphanRemoval=true)
 	private Set<UserRole> userRoles = new HashSet<>();
 
 	public User(String username, String password, boolean enabled) {

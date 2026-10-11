@@ -7,7 +7,10 @@ import lombok.Setter;
 
 @Entity
 @Getter @Setter @NoArgsConstructor
-public class Employee extends Person {
+public class PuestoDesarmable extends UnidadDeVenta {
 
-	private String workFile;
+	private int cantCarpas;
+
+	// En minutos
+	private int tiempoMontaje;
 }
