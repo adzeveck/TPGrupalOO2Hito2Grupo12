@@ -19,4 +19,11 @@ public class FoodTruck extends UnidadDeVenta {
 	public String getTipo() {
 		return "Food Truck";
 	}
+
+
+	@Override
+	public String getPrefijoCodigo() {
+		return "FT";
+	}
+
 }

@@ -17,10 +17,13 @@ public class UserController {
 	public String login(Model model,
 						@RequestParam(required=false) String error,
 						@RequestParam(required=false) String disabled,
-						@RequestParam(required=false) String logout) {
+						@RequestParam(required=false) String logout,
+						@RequestParam(required=false) String registrado){
 		model.addAttribute("error", error);
 		model.addAttribute("disabled", disabled);
 		model.addAttribute("logout", logout);
+		model.addAttribute("registrado", registrado);
+
 		return ViewRouteHelper.USER_LOGIN;
 	}
 

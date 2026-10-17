@@ -29,6 +29,11 @@
                     Sesión finalizada correctamente.
                 </div>
 
+                <div th:if="${registrado != null}" class="alert alert-success">
+                    Unidad de venta registrada. Ya podés iniciar sesión con tu email y contraseña.
+                </div>
+
+
                 <form th:action="@{/loginprocess}" method="post">
                     <div class="mb-3">
                         <label for="username" class="form-label">Email</label>
