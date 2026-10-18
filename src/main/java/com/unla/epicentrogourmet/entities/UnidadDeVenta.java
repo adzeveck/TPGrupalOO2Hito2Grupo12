@@ -61,4 +61,12 @@ public abstract class UnidadDeVenta {
 
 	// Polimorfismo: cada subclase informa su tipo. No es una columna (JPA mapea los atributos, no los métodos)
 	public abstract String getTipo();
+
+	// Lógica propia del código (enunciado): prefijo de la subclase + 8 dígitos = 10 caracteres
+	public abstract String getPrefijoCodigo();
+
+	public boolean tieneCodigoValido() {
+		return codigo != null && codigo.matches(getPrefijoCodigo() + "\\d{8}");
+	}
+
 }
