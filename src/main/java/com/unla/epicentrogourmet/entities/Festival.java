@@ -43,8 +43,8 @@ public class Festival {
 	@JoinColumn(name = "costo_id", nullable = false, unique = true)
 	private Costo costo;
 
-	// Agregación unidireccional: la FK festival_id queda en unidad_de_venta, sin atributo festival en la unidad
-	@OneToMany(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
-	@JoinColumn(name = "festival_id")
+	// Agregación: la unidad tiene vida propia, por eso no hay cascada.
+	// mappedBy: la FK festival_id la escribe UnidadDeVenta.festival
+	@OneToMany(mappedBy = "festival", fetch = FetchType.LAZY)
 	private Set<UnidadDeVenta> unidades = new HashSet<>();
 }

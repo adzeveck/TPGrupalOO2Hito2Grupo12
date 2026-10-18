@@ -16,6 +16,8 @@ public class ViewRouteHelper {
 
 	//EMPLEADO
 	public final static String EMPLEADO_INDEX = "empleado/index";
+	public final static String PEDIDO_FORM = "empleado/pedido-form";
+	public final static String PEDIDO_LIST = "empleado/pedidos";
 
 	//REGISTRO
 	public final static String REGISTRO_FORM = "registro/form";
@@ -26,6 +28,7 @@ public class ViewRouteHelper {
 	public final static String ADMIN_ROOT = "/admin/index";
 	public final static String RESPONSABLE_ROOT = "/responsable/index";
 	public final static String EMPLEADO_ROOT = "/empleado/index";
+	public final static String PEDIDOS_ROOT = "/empleado/pedidos";
 	public final static String LOGIN_REGISTRADO = "/login?registrado";
 
 }
