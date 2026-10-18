@@ -22,11 +22,9 @@ import com.unla.epicentrogourmet.entities.Personal;
 import com.unla.epicentrogourmet.entities.Plato;
 import com.unla.epicentrogourmet.entities.UnidadDeVenta;
 import com.unla.epicentrogourmet.exceptions.ValidacionException;
-import com.unla.epicentrogourmet.repositories.IFestivalRepository;
 import com.unla.epicentrogourmet.repositories.IPedidoRepository;
 import com.unla.epicentrogourmet.repositories.IPersonalRepository;
 import com.unla.epicentrogourmet.repositories.IPlatoRepository;
-import com.unla.epicentrogourmet.repositories.IUnidadDeVentaRepository;
 import com.unla.epicentrogourmet.services.IPedidoService;
 
 @Service("pedidoService")
@@ -35,16 +33,12 @@ public class PedidoService implements IPedidoService {
 	private static final DateTimeFormatter FORMATO_FECHA = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
 	private final IPersonalRepository personalRepository;
-	private final IUnidadDeVentaRepository unidadDeVentaRepository;
-	private final IFestivalRepository festivalRepository;
 	private final IPlatoRepository platoRepository;
 	private final IPedidoRepository pedidoRepository;
 
-	public PedidoService(IPersonalRepository personalRepository, IUnidadDeVentaRepository unidadDeVentaRepository,
-			IFestivalRepository festivalRepository, IPlatoRepository platoRepository, IPedidoRepository pedidoRepository) {
+	public PedidoService(IPersonalRepository personalRepository, IPlatoRepository platoRepository,
+			IPedidoRepository pedidoRepository) {
 		this.personalRepository = personalRepository;
-		this.unidadDeVentaRepository = unidadDeVentaRepository;
-		this.festivalRepository = festivalRepository;
 		this.platoRepository = platoRepository;
 		this.pedidoRepository = pedidoRepository;
 	}
@@ -64,15 +58,18 @@ public class PedidoService implements IPedidoService {
 		if (!(empleado instanceof Cajero)) {
 			throw new ValidacionException(null, "Solo un cajero puede cargar pedidos");
 		}
-		return unidadDeVentaRepository.findByEmpleadoUsername(username)
-				.orElseThrow(() -> new ValidacionException(null, "No estás asignado a ninguna unidad de venta"));
+		// El empleado conoce su unidad (Personal.unidad es el dueño de la FK)
+		if (empleado.getUnidad() == null) {
+			throw new ValidacionException(null, "No estás asignado a ninguna unidad de venta");
+		}
+		return empleado.getUnidad();
 	}
 
 	@Override
 	@Transactional(readOnly = true)
 	public PedidoDTO prepararFormulario(String username) {
 		UnidadDeVenta unidad = getUnidadHabilitadaHoy(username);
-		List<Plato> menu = platoRepository.findActivosByUnidadId(unidad.getId());
+		List<Plato> menu = platoRepository.findByUnidadIdAndActivoTrueOrderByNombre(unidad.getId());
 		if (menu.isEmpty()) {
 			throw new ValidacionException(null, "Tu unidad no tiene platos activos para vender");
 		}
@@ -88,7 +85,7 @@ public class PedidoService implements IPedidoService {
 		UnidadDeVenta unidad = getUnidadHabilitadaHoy(username);
 
 		// Precio y plato salen de la base, no del formulario: lo que manda el navegador se puede adulterar
-		Map<Integer, Plato> menu = platoRepository.findActivosByUnidadId(unidad.getId()).stream()
+		Map<Integer, Plato> menu = platoRepository.findByUnidadIdAndActivoTrueOrderByNombre(unidad.getId()).stream()
 				.collect(Collectors.toMap(Plato::getId, Function.identity()));
 
 		// Si el mismo plato llega dos veces, se suman las cantidades en un solo renglón
@@ -135,8 +132,7 @@ public class PedidoService implements IPedidoService {
 	// La unidad del cajero, siempre que su festival esté activo hoy
 	private UnidadDeVenta getUnidadHabilitadaHoy(String username) {
 		UnidadDeVenta unidad = getUnidadDelCajero(username);
-		Festival festival = festivalRepository.findByUnidadId(unidad.getId())
-				.orElseThrow(() -> new ValidacionException(null, "Tu unidad no está asignada a ningún festival"));
+		Festival festival = unidad.getFestival(); // la unidad conoce su festival (UnidadDeVenta.festival)
 		LocalDate hoy = LocalDate.now();
 		if (hoy.isBefore(festival.getFechaInicio()) || hoy.isAfter(festival.getFechaFin())) {
 			throw new ValidacionException(null, "Hoy no hay un festival activo para tu unidad: " + festival.getNombre()

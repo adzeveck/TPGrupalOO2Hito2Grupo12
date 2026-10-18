@@ -97,6 +97,29 @@ Cada caso de uso entra a `main` por Pull Request desde una rama `CU<Funcionalida
 | Registro de unidad de venta con su responsable | Bautista Nuñez | [#2](https://github.com/adzeveck/TPGrupalOO2Hito2Grupo12/pull/2) |
 | Alta de pedido (cajero) | Agustín Dzevecka | [#3](https://github.com/adzeveck/TPGrupalOO2Hito2Grupo12/pull/3) |
 
+## Cómo se guardan las relaciones
+
+Las relaciones padre-hijo se mapean como en el ejemplo de la cátedra (`Degree` → `Person`): el **hijo** tiene un
+`@ManyToOne` hacia su padre y es el dueño de la clave foránea; la lista del padre es `@OneToMany(mappedBy = ...)`.
+En el diagrama de clases esas referencias del hijo al padre no se dibujan (es la FK, no un dato del negocio).
+
+| Hijo → padre | Atributo dueño de la FK |
+|---|---|
+| `UnidadDeVenta` → `Festival` | `UnidadDeVenta.festival` |
+| `Plato` → `UnidadDeVenta` | `Plato.unidad` |
+| `Personal` → `UnidadDeVenta` | `Personal.unidad` |
+| `Pedido` → `UnidadDeVenta` | `Pedido.unidad` |
+| `DetallePedido` → `Pedido` | `DetallePedido.pedido` (usar `pedido.agregarDetalle(...)`) |
+
+Para guardar un hijo nuevo: **setearle el padre y guardarlo con su propio repositorio**.
+
+```java
+plato.setUnidad(unidad);
+platoRepository.save(plato);   // es nuevo: save() hace persist y el objeto queda con su id
+```
+
+Agregarlo solo a la lista del padre (`unidad.getPlatos().add(plato)`) no alcanza: la lista no escribe la FK.
+
 ## Estructura del proyecto
 
 ```

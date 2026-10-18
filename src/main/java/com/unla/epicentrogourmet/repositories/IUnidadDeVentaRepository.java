@@ -3,8 +3,6 @@ package com.unla.epicentrogourmet.repositories;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.unla.epicentrogourmet.entities.UnidadDeVenta;
@@ -18,7 +16,5 @@ public interface IUnidadDeVentaRepository extends JpaRepository<UnidadDeVenta, I
 	// La unidad del responsable logueado
 	Optional<UnidadDeVenta> findByResponsableUsername(String username);
 
-	// La unidad donde trabaja el empleado logueado
-	@Query("SELECT u FROM UnidadDeVenta u JOIN u.staff s WHERE s.usuario.username = :username")
-	Optional<UnidadDeVenta> findByEmpleadoUsername(@Param("username") String username);
+	// La unidad donde trabaja un empleado no necesita consulta: es personal.getUnidad()
 }

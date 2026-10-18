@@ -14,6 +14,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import lombok.Getter;
@@ -44,14 +45,19 @@ public abstract class UnidadDeVenta {
 	@JoinColumn(name = "responsable_id", nullable = false, unique = true)
 	private User responsable;
 
-	// Composición: el plato es del menú de esta unidad
-	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-	@JoinColumn(name = "unidad_id", nullable = false)
+	// Dueño de la FK festival_id. En el diagrama no se dibuja (se llega desde Festival.unidades),
+	// pero en el código el hijo apunta a su padre, como Degree -> Person en el ejemplo de la cátedra
+	@ManyToOne(fetch = FetchType.LAZY, optional = false)
+	@JoinColumn(name = "festival_id", nullable = false)
+	private Festival festival;
+
+	// Composición: el plato es del menú de esta unidad. mappedBy: la FK la escribe Plato.unidad
+	@OneToMany(mappedBy = "unidad", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
 	private Set<Plato> platos = new HashSet<>();
 
-	// Agregación: el empleado existe más allá de la unidad, por eso no hay REMOVE en cascada
-	@OneToMany(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
-	@JoinColumn(name = "unidad_id")
+	// Agregación: el empleado existe más allá de la unidad, por eso no hay cascada.
+	// mappedBy: la FK la escribe Personal.unidad
+	@OneToMany(mappedBy = "unidad", fetch = FetchType.LAZY)
 	private Set<Personal> staff = new HashSet<>();
 
 	// Composición: un pedido es una venta de esta unidad. mappedBy: la FK unidad_id la escribe
