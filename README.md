@@ -93,8 +93,9 @@ Cada caso de uso entra a `main` por Pull Request desde una rama `CU<Funcionalida
 
 | Caso de uso | Responsable | Pull Request |
 |---|---|---|
-| Base del proyecto: entidades, repositorios, script de datos de prueba, seguridad por rol e inicio público | Agustín Dzevecka | *pendiente* |
+| Base del proyecto: entidades, repositorios, script de datos de prueba, seguridad por rol e inicio público | Agustín Dzevecka | [#1](https://github.com/adzeveck/TPGrupalOO2Hito2Grupo12/pull/1) |
 | Registro de unidad de venta con su responsable | Bautista Nuñez | [#2](https://github.com/adzeveck/TPGrupalOO2Hito2Grupo12/pull/2) |
+| Alta de pedido (cajero) | Agustín Dzevecka | [#3](https://github.com/adzeveck/TPGrupalOO2Hito2Grupo12/pull/3) |
 
 ## Estructura del proyecto
 

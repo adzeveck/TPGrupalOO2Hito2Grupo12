@@ -20,6 +20,11 @@ public class DetallePedido {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
 
+	// Dueño de la FK pedido_id. Se setea con Pedido.agregarDetalle(...)
+	@ManyToOne(fetch = FetchType.LAZY, optional = false)
+	@JoinColumn(name = "pedido_id", nullable = false)
+	private Pedido pedido;
+
 	@ManyToOne(fetch = FetchType.LAZY, optional = false)
 	@JoinColumn(name = "plato_id", nullable = false)
 	private Plato plato;
