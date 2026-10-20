@@ -1,48 +1,55 @@
+
 package com.unla.epicentrogourmet.controllers;
 
-import com.unla.epicentrogourmet.services.implementation.EmailService;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.mail.MailException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.unla.epicentrogourmet.helpers.ViewRouteHelper;
+import com.unla.epicentrogourmet.services.IEmailService;
+
 @Controller
+@RequestMapping("/admin/email-test")
+@PreAuthorize("hasRole('ADMIN')")
 public class EmailController {
 
-    private final EmailService emailService;
+    private final IEmailService emailService;
 
-    public EmailController(EmailService emailService) {
+    public EmailController(IEmailService emailService) {
         this.emailService = emailService;
     }
 
-    @GetMapping("/email-test")
-    public String mostrarPaginaEmail() {
-        return "emailTest";
+    @GetMapping
+    public ModelAndView mostrarFormulario() {
+        return new ModelAndView(ViewRouteHelper.EMAIL_TEST_FORM);
     }
 
-    @PostMapping("/api/test-email")
-    @ResponseBody
-    public ResponseEntity<String> enviarEmail(
-            @RequestParam String destinatario) {
+    @PostMapping
+    public ModelAndView enviarCorreo(
+            @RequestParam("destinatario") String destinatario) {
+
+        ModelAndView vista =
+                new ModelAndView(ViewRouteHelper.EMAIL_TEST_FORM);
+
+        vista.addObject("destinatario", destinatario);
 
         try {
-            emailService.enviarEmail(destinatario);
-
-            return ResponseEntity.ok(
-                    "Correo enviado correctamente a " + destinatario
-            );
-
+            emailService.enviarCorreoPrueba(destinatario);
+            vista.addObject("mensajeExito",
+                    "El correo se envió correctamente.");
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-
+            vista.addObject("mensajeError", e.getMessage());
         } catch (MailException e) {
-            return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
-                    .body("No se pudo enviar el correo. Revisá la configuración SMTP.");
+            vista.addObject("mensajeError",
+                    "No se pudo enviar el correo. Revisá la configuración "
+                            + "SMTP y las credenciales.");
         }
+
+        return vista;
     }
 }

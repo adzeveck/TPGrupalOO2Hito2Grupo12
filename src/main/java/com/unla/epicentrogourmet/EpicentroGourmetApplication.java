@@ -9,12 +9,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 public class EpicentroGourmetApplication {
 
 	public static void main(String[] args) {
-
-
-		try {
 			SpringApplication.run(EpicentroGourmetApplication.class, args);
-		} catch (Throwable t) {
-			t.printStackTrace();
-		}
+
 	}
 }

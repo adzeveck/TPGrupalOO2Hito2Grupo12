@@ -22,6 +22,8 @@ public class ViewRouteHelper {
 	//REGISTRO
 	public final static String REGISTRO_FORM = "registro/form";
 
+	//PRUEBA EMAIL
+	public static final String EMAIL_TEST_FORM = "admin/emailTest";
 
 	/**** Redirects ****/
 	public final static String ROUTE = "/index";
