@@ -14,7 +14,7 @@ import com.unla.epicentrogourmet.helpers.ViewRouteHelper;
 import com.unla.epicentrogourmet.services.IEmailService;
 
 @Controller
-@RequestMapping("/admin/email-test")
+@RequestMapping("/admin/emailTest")
 @PreAuthorize("hasRole('ADMIN')")
 public class EmailController {
 
@@ -26,7 +26,7 @@ public class EmailController {
 
     @GetMapping
     public ModelAndView mostrarFormulario() {
-        return new ModelAndView(ViewRouteHelper.EMAIL_TEST_FORM);
+        return new ModelAndView(ViewRouteHelper.EMAILTESTFORM);
     }
 
     @PostMapping
@@ -34,7 +34,7 @@ public class EmailController {
             @RequestParam("destinatario") String destinatario) {
 
         ModelAndView vista =
-                new ModelAndView(ViewRouteHelper.EMAIL_TEST_FORM);
+                new ModelAndView(ViewRouteHelper.EMAILTESTFORM);
 
         vista.addObject("destinatario", destinatario);
 
