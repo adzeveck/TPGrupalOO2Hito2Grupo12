@@ -73,11 +73,10 @@ public class UnidadDeVentaService implements IUnidadDeVentaService {
         unidad.setSuperficie(dto.getSuperficie());
         unidad.setResponsable(responsable);
 
-        // La FK festival_id la escribe la colección del festival (relación unidireccional):
-        // sin esta línea la unidad quedaría guardada sin festival
-        festival.getUnidades().add(unidad);
-        unidadDeVentaRepository.save(unidad);
-        return unidad;
+        // La FK festival_id la escribe UnidadDeVenta.festival: la unidad apunta a su festival
+        // y se guarda con su propio repositorio (es nueva, así que save() hace persist)
+        unidad.setFestival(festival);
+        return unidadDeVentaRepository.save(unidad);
     }
 
     // La subclase concreta según el tipo elegido: después se la trata como UnidadDeVenta

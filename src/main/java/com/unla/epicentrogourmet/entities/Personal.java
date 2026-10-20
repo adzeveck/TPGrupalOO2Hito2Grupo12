@@ -5,12 +5,14 @@ import java.time.LocalDate;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -45,4 +47,10 @@ public abstract class Personal {
 	@OneToOne(cascade = CascadeType.ALL, optional = false)
 	@JoinColumn(name = "user_id", nullable = false, unique = true)
 	private User usuario;
+
+	// Dueño de la FK unidad_id: la unidad donde trabaja. Puede ser null porque la relación es una
+	// agregación (la persona existe más allá de la unidad)
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "unidad_id")
+	private UnidadDeVenta unidad;
 }

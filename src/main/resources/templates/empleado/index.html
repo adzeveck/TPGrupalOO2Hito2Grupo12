@@ -10,6 +10,15 @@
             <p class="text-muted mb-0">Sesión iniciada como <strong sec:authentication="name">usuario</strong></p>
         </div>
 
+        <!-- Solo para cajeros: el controller pasa puedeCargarPedidos (el tipo se sabe por la subclase) -->
+        <div class="card mb-4" th:if="${puedeCargarPedidos}">
+            <div class="card-header">Caja</div>
+            <div class="card-body">
+                <a class="btn btn-primary mr-2" th:href="@{/empleado/pedidos/nuevo}">Nuevo pedido</a>
+                <a class="btn btn-outline-primary" th:href="@{/empleado/pedidos}">Pedidos de hoy</a>
+            </div>
+        </div>
+
         <div class="card">
             <div class="card-header">Acciones del empleado</div>
             <ul class="list-group list-group-flush">

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head}"></head>
+<body>
+<nav th:replace="~{layout :: navbar}"></nav>
+
+<main class="container py-4">
+    <h1 class="mb-1">Pedidos de hoy</h1>
+
+    <div th:if="${errorGeneral != null}">
+        <div class="alert alert-warning mt-3" th:text="${errorGeneral}">Mensaje</div>
+        <a class="btn btn-secondary" th:href="@{/empleado/index}">Volver</a>
+    </div>
+
+    <div th:if="${errorGeneral == null}">
+        <p class="text-muted mb-4">
+            <span th:text="${unidad.nombreComercial}">Unidad</span> ·
+            <span th:text="${#temporals.format(hoy, 'dd/MM/yyyy')}">18/10/2026</span>
+        </p>
+
+        <!-- Aviso del pedido recién creado (llega por el redirect: ?creado=ID) -->
+        <div class="alert alert-success" th:if="${creado != null}"
+             th:with="nuevo=${pedidos.?[id == __${creado}__]}">
+            Pedido <strong th:text="'#' + ${creado}">#1</strong> registrado
+            <span th:unless="${#lists.isEmpty(nuevo)}"
+                  th:text="'por $ ' + ${#numbers.formatDecimal(nuevo[0].total, 1, 'POINT', 2, 'COMMA')}">por $ 0,00</span>.
+        </div>
+
+        <a class="btn btn-primary mb-3" th:href="@{/empleado/pedidos/nuevo}">Nuevo pedido</a>
+
+        <p class="text-muted" th:if="${#lists.isEmpty(pedidos)}">Todavía no hay pedidos cargados hoy.</p>
+
+        <div class="card" th:unless="${#lists.isEmpty(pedidos)}">
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead>
+                        <tr>
+                            <th>Pedido</th>
+                            <th>Platos</th>
+                            <th class="text-right">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="p : ${pedidos}" th:classappend="${creado != null and p.id == creado} ? 'table-success'">
+                            <td th:text="'#' + ${p.id}">#1</td>
+                            <td>
+                                <span th:each="d, st : ${p.detalles}"
+                                      th:text="${d.cantidad} + ' × ' + ${d.plato.nombre} + (${st.last} ? '' : ', ')">1 × Plato</span>
+                            </td>
+                            <td class="text-right" th:text="'$ ' + ${#numbers.formatDecimal(p.total, 1, 'POINT', 2, 'COMMA')}">$ 0,00</td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th colspan="2" class="text-right"
+                                th:text="${#lists.size(pedidos)} + ' pedidos · total del día'">Total del día</th>
+                            <th class="text-right"
+                                th:text="'$ ' + ${#numbers.formatDecimal(#aggregates.sum(pedidos.![total]), 1, 'POINT', 2, 'COMMA')}">$ 0,00</th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{layout :: footer}"></footer>
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>
