@@ -10,8 +10,18 @@
                 <h1>Epicentro Gourmet</h1>
                 <p class="mb-4">Festivales gastronómicos en el centro de convenciones y predio ferial</p>
                 <div sec:authorize="isAnonymous()">
-                    <a class="btn btn-light mr-2" th:href="@{/registro}">Registrar unidad de venta</a>
-                    <a class="btn btn-outline-light" th:href="@{/login}">Iniciar sesión</a>
+                    <a class="btn btn-light mr-2" th:href="@{/registro}">
+                        Registrar unidad de venta
+                    </a>
+                    <a class="btn btn-outline-light" th:href="@{/login}">
+                        Iniciar sesión
+                    </a>
+                </div>
+
+                <div sec:authorize="isAuthenticated()">
+                    <a class="btn btn-light" th:href="@{/email-test}">
+                        Probar envío de correo
+                    </a>
                 </div>
             </div>
         </div>
