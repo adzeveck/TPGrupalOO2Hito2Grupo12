@@ -18,6 +18,7 @@ public class ViewRouteHelper {
 	public final static String EMPLEADO_INDEX = "empleado/index";
 	public final static String PEDIDO_FORM = "empleado/pedido-form";
 	public final static String PEDIDO_LIST = "empleado/pedidos";
+	public final static String SUELDO = "empleado/sueldo";
 
 	//REGISTRO
 	public final static String REGISTRO_FORM = "registro/form";
