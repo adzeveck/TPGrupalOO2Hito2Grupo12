@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head}"></head>
+<body>
+<nav th:replace="~{layout :: navbar}"></nav>
+
+<main class="container py-4">
+    <h1 class="mb-1">Mi liquidación de sueldo</h1>
+
+    <div th:if="${errorGeneral != null}">
+        <div class="alert alert-warning mt-3" th:text="${errorGeneral}">Mensaje</div>
+        <a class="btn btn-secondary" th:href="@{/empleado/index}">Volver</a>
+    </div>
+
+    <div th:if="${errorGeneral == null}">
+        <p class="text-muted mb-4">
+            <span th:text="${liquidacion.festival}">Festival</span> ·
+            <span th:text="${liquidacion.unidad}">Unidad</span>
+        </p>
+
+        <div class="card mb-4">
+            <div class="card-header">Datos del empleado</div>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item"><strong>Empleado:</strong> <span th:text="${liquidacion.empleado}">Nombre Apellido</span></li>
+                <li class="list-group-item"><strong>DNI:</strong> <span th:text="${liquidacion.dni}">30111222</span></li>
+                <li class="list-group-item"><strong>Puesto:</strong> <span th:text="${liquidacion.puesto}">Cocinero</span></li>
+                <li class="list-group-item">
+                    <strong>Período del festival:</strong>
+                    <span th:text="${#temporals.format(liquidacion.fechaInicio, 'dd/MM/yyyy')} + ' al ' + ${#temporals.format(liquidacion.fechaFin, 'dd/MM/yyyy')}">01/10/2026 al 15/11/2026</span>
+                    (<span th:text="${liquidacion.dias}">46</span> días)
+                </li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead>
+                        <tr>
+                            <th>Concepto</th>
+                            <th class="text-right">Monto</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Sueldo base</td>
+                            <td class="text-right" th:text="'$ ' + ${#numbers.formatDecimal(liquidacion.sueldoBase, 1, 'POINT', 2, 'COMMA')}">$ 0,00</td>
+                        </tr>
+                        <tr>
+                            <td th:text="${liquidacion.conceptoAdicional}">Plus</td>
+                            <td class="text-right" th:text="'$ ' + ${#numbers.formatDecimal(liquidacion.adicional, 1, 'POINT', 2, 'COMMA')}">$ 0,00</td>
+                        </tr>
+                        <tr>
+                            <th>Subtotal</th>
+                            <th class="text-right" th:text="'$ ' + ${#numbers.formatDecimal(liquidacion.subtotal, 1, 'POINT', 2, 'COMMA')}">$ 0,00</th>
+                        </tr>
+                        <tr>
+                            <td th:text="'Liquidación por ' + ${liquidacion.dias} + ' días: ' + ${liquidacion.porcentaje} + '% del subtotal'">Liquidación por días</td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr class="table-success">
+                            <th>Total a cobrar</th>
+                            <th class="text-right" th:text="'$ ' + ${#numbers.formatDecimal(liquidacion.total, 1, 'POINT', 2, 'COMMA')}">$ 0,00</th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+        <a class="btn btn-secondary mt-3" th:href="@{/empleado/index}">Volver</a>
+    </div>
+</main>
+
+<footer th:replace="~{layout :: footer}"></footer>
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>
