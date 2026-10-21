@@ -59,7 +59,6 @@ INSERT INTO `user` (id, username, password, enabled, created_at, updated_at) VAL
 (12, 'ayudante3@epicentro.com',    '$2a$10$IPoMwDvTwhqygbHYJ2cDR.L06jcWzTXEHqoNI/Mf3bXBRPvgUm6w.', 0, NOW(), NOW()),  -- dado de baja (baja lógica)
 (13, 'cajero3@epicentro.com',      '$2a$10$IPoMwDvTwhqygbHYJ2cDR.L06jcWzTXEHqoNI/Mf3bXBRPvgUm6w.', 1, NOW(), NOW());
 
-
 INSERT INTO user_role (id, user_id, role, created_at, updated_at) VALUES
 (1, 1, 'ROLE_ADMIN', NOW(), NOW()),
 (2, 2, 'ROLE_RESPONSABLE', NOW(), NOW()),
@@ -74,8 +73,6 @@ INSERT INTO user_role (id, user_id, role, created_at, updated_at) VALUES
 (11, 11, 'ROLE_EMPLEADO', NOW(), NOW()),
 (12, 12, 'ROLE_EMPLEADO', NOW(), NOW()),
 (13, 13, 'ROLE_EMPLEADO', NOW(), NOW());
-
-
 
 -- ---------------------------------------------------------------------
 -- Unidades de venta (herencia JOINED: fila en unidad_de_venta + fila en la subclase)

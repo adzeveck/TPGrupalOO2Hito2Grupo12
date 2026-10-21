@@ -37,13 +37,15 @@ las anteriores son las iteraciones previas).
 | `DB_URL` | `jdbc:mysql://localhost:3306/epicentrogourmet?createDatabaseIfNotExist=true` | URL de la base. Con `createDatabaseIfNotExist=true` la base se crea sola |
 | `USERNAME` | `root` | Usuario de MySQL |
 | `PASSWORD` | *(tu contraseña de MySQL)* | Contraseña de MySQL |
+| `MAIL_USERNAME` | `cuenta@gmail.com` | Cuenta de Gmail que envía los correos. Opcional: sin ella la app arranca, pero no envía mails |
+| `MAIL_PASSWORD` | *(contraseña de aplicación)* | [Contraseña de aplicación](https://myaccount.google.com/apppasswords) de esa cuenta (no la contraseña normal; requiere verificación en 2 pasos) |
 
 En IntelliJ: **Run → Edit Configurations → + → Application**
 
 - **Main class:** `com.unla.epicentrogourmet.EpicentroGourmetApplication`
 - **Environment variables** (separadas por `;`):
   ```
-  DB_URL=jdbc:mysql://localhost:3306/epicentrogourmet?createDatabaseIfNotExist=true;USERNAME=root;PASSWORD=tu_clave
+  DB_URL=jdbc:mysql://localhost:3306/epicentrogourmet?createDatabaseIfNotExist=true;USERNAME=root;PASSWORD=tu_clave;MAIL_USERNAME=cuenta@gmail.com;MAIL_PASSWORD=clave_de_aplicacion
   ```
 - **No** tildar *Store as project file*, para que la contraseña no termine en el repositorio.
 
