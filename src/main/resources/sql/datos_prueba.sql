@@ -57,8 +57,7 @@ INSERT INTO `user` (id, username, password, enabled, created_at, updated_at) VAL
 (10, 'cajero2@epicentro.com',      '$2a$10$IPoMwDvTwhqygbHYJ2cDR.L06jcWzTXEHqoNI/Mf3bXBRPvgUm6w.', 1, NOW(), NOW()),
 (11, 'cocinero3@epicentro.com',    '$2a$10$IPoMwDvTwhqygbHYJ2cDR.L06jcWzTXEHqoNI/Mf3bXBRPvgUm6w.', 1, NOW(), NOW()),
 (12, 'ayudante3@epicentro.com',    '$2a$10$IPoMwDvTwhqygbHYJ2cDR.L06jcWzTXEHqoNI/Mf3bXBRPvgUm6w.', 0, NOW(), NOW()),  -- dado de baja (baja lógica)
-(13, 'cajero3@epicentro.com',      '$2a$10$IPoMwDvTwhqygbHYJ2cDR.L06jcWzTXEHqoNI/Mf3bXBRPvgUm6w.', 1, NOW(), NOW()),
-(14, 'santiagomansilla99@hotmail.com', '$2a$10$IPoMwDvTwhqygbHYJ2cDR.L06jcWzTXEHqoNI/Mf3bXBRPvgUm6w.', 1, NOW(), NOW());
+(13, 'cajero3@epicentro.com',      '$2a$10$IPoMwDvTwhqygbHYJ2cDR.L06jcWzTXEHqoNI/Mf3bXBRPvgUm6w.', 1, NOW(), NOW());
 
 
 INSERT INTO user_role (id, user_id, role, created_at, updated_at) VALUES
@@ -74,8 +73,8 @@ INSERT INTO user_role (id, user_id, role, created_at, updated_at) VALUES
 (10, 10, 'ROLE_EMPLEADO', NOW(), NOW()),
 (11, 11, 'ROLE_EMPLEADO', NOW(), NOW()),
 (12, 12, 'ROLE_EMPLEADO', NOW(), NOW()),
-(13, 13, 'ROLE_EMPLEADO', NOW(), NOW()),
-(14, 14, 'ROLE_ADMIN', NOW(), NOW());
+(13, 13, 'ROLE_EMPLEADO', NOW(), NOW());
+
 
 
 -- ---------------------------------------------------------------------

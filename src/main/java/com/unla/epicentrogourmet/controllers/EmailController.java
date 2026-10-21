@@ -2,6 +2,7 @@
 package com.unla.epicentrogourmet.controllers;
 
 import org.springframework.mail.MailException;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,31 +26,57 @@ public class EmailController {
     }
 
     @GetMapping
-    public ModelAndView mostrarFormulario() {
-        return new ModelAndView(ViewRouteHelper.EMAILTESTFORM);
+    public ModelAndView mostrarFormulario(
+            @RequestParam(value = "enviado", required = false) Boolean enviado) {
+
+        ModelAndView vista =
+                new ModelAndView(ViewRouteHelper.EMAIL_TEST_FORM);
+
+        if (Boolean.TRUE.equals(enviado)) {
+            vista.addObject("mensajeExito",
+                    "El correo se envió correctamente.");
+        }
+
+        return vista;
     }
 
     @PostMapping
     public ModelAndView enviarCorreo(
-            @RequestParam("destinatario") String destinatario) {
-
-        ModelAndView vista =
-                new ModelAndView(ViewRouteHelper.EMAILTESTFORM);
-
-        vista.addObject("destinatario", destinatario);
+            @RequestParam("destinatario") String destinatario,
+            RedirectAttributes redirectAttributes) {
 
         try {
-            emailService.enviarCorreoPrueba(destinatario);
-            vista.addObject("mensajeExito",
-                    "El correo se envió correctamente.");
-        } catch (IllegalArgumentException e) {
-            vista.addObject("mensajeError", e.getMessage());
-        } catch (MailException e) {
-            vista.addObject("mensajeError",
-                    "No se pudo enviar el correo. Revisá la configuración "
-                            + "SMTP y las credenciales.");
-        }
+            emailService.enviar(
+                    destinatario,
+                    "Prueba de correo - Epicentro Gourmet",
+                    "Este es un correo de prueba enviado desde Epicentro Gourmet."
+            );
 
-        return vista;
+            redirectAttributes.addAttribute("enviado", true);
+
+            return new ModelAndView("redirect:/admin/email-test");
+
+        } catch (IllegalArgumentException e) {
+            ModelAndView vista =
+                    new ModelAndView(ViewRouteHelper.EMAIL_TEST_FORM);
+
+            vista.addObject("destinatario", destinatario);
+            vista.addObject("mensajeError", e.getMessage());
+
+            return vista;
+
+        } catch (org.springframework.mail.MailException e) {
+            org.slf4j.LoggerFactory.getLogger(EmailController.class)
+                    .error("Error al enviar el correo de prueba", e);
+
+            ModelAndView vista =
+                    new ModelAndView(ViewRouteHelper.EMAIL_TEST_FORM);
+
+            vista.addObject("destinatario", destinatario);
+            vista.addObject("mensajeError",
+                    "No se pudo enviar el correo. Revisá la configuración SMTP.");
+
+            return vista;
+        }
     }
 }
