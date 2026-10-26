@@ -10,14 +10,22 @@
             <p class="text-muted mb-0">Sesión iniciada como <strong sec:authentication="name">usuario</strong></p>
         </div>
 
-        <div class="card">
+        <div class="card mb-4">
             <div class="card-header">Acciones del administrador</div>
-            <ul class="list-group list-group-flush">
-                <li class="list-group-item">Ver festivales</li>
-                <li class="list-group-item">Ver unidades de venta de un festival</li>
-                <li class="list-group-item">Ranking de unidades por recaudación</li>
-                <li class="list-group-item">Unidades con mayor canon</li>
-            </ul>
+            <div class="list-group list-group-flush">
+                <a class="list-group-item list-group-item-action" th:href="@{/admin/festivales}">
+                    Ver festivales
+                </a>
+                <a class="list-group-item list-group-item-action" th:href="@{/admin/festivales}">
+                    Ver unidades de venta de un festival
+                </a>
+                <a class="list-group-item list-group-item-action" th:href="@{/admin/canon}">
+                    Unidades con mayor canon
+                </a>
+                <span class="list-group-item text-muted">
+                    Ranking de unidades por recaudación <span class="badge badge-secondary">Pendiente</span>
+                </span>
+            </div>
         </div>
 
         <div class="card mb-3">

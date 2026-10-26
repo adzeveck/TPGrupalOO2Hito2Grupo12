@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head}"></head>
+<body>
+<nav th:replace="~{layout :: navbar}"></nav>
+
+<main class="container py-4">
+    <div th:if="${errorGeneral != null}">
+        <div class="alert alert-warning mt-3" th:text="${errorGeneral}">Mensaje</div>
+        <a class="btn btn-secondary" th:href="@{/admin/festivales}">Volver a festivales</a>
+    </div>
+
+    <div th:if="${errorGeneral == null}">
+        <h1 class="mb-1" th:text="${festival.nombre}">Festival</h1>
+        <p class="text-muted mb-4"
+           th:text="|${festival.temporada} · del ${#temporals.format(festival.fechaInicio, 'dd/MM/yyyy')} al ${#temporals.format(festival.fechaFin, 'dd/MM/yyyy')}|">
+            Temporada · fechas
+        </p>
+
+        <p class="alert alert-info" th:if="${#lists.isEmpty(unidades)}">
+            Este festival todavía no tiene unidades de venta registradas.
+        </p>
+
+        <div class="card mb-4" th:unless="${#lists.isEmpty(unidades)}">
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Nombre comercial</th>
+                            <th>Tipo</th>
+                            <th class="text-right">Superficie</th>
+                            <th>Responsable</th>
+                            <th class="text-right">Canon</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="unidad : ${unidades}">
+                            <td th:text="${unidad.codigo}">FT00000001</td>
+                            <td th:text="${unidad.nombreComercial}">Unidad</td>
+                            <td th:text="${unidad.tipo}">Tipo</td>
+                            <td class="text-right"
+                                th:text="${#numbers.formatDecimal(unidad.superficie, 1, 'POINT', 2, 'COMMA')} + ' m²'">0 m²</td>
+                            <td th:text="${unidad.responsable.username}">responsable@epicentro.com</td>
+                            <td class="text-right"
+                                th:text="'$ ' + ${#numbers.formatDecimal(canones[unidad.id], 1, 'POINT', 2, 'COMMA')}">$ 0,00</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <a class="btn btn-link px-0" th:href="@{/admin/festivales}">Volver a festivales</a>
+    </div>
+</main>
+
+<footer th:replace="~{layout :: footer}"></footer>
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>

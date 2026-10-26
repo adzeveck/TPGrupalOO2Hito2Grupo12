@@ -1,5 +1,6 @@
 package com.unla.epicentrogourmet.services.implementation;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -77,6 +78,20 @@ public class UnidadDeVentaService implements IUnidadDeVentaService {
         // y se guarda con su propio repositorio (es nueva, así que save() hace persist)
         unidad.setFestival(festival);
         return unidadDeVentaRepository.save(unidad);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public UnidadDeVenta getDelResponsable(String username) {
+        return unidadDeVentaRepository.findByResponsableUsername(username)
+                .orElseThrow(() -> new ValidacionException(null, "Tu usuario no tiene una unidad de venta asignada"));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public BigDecimal calcularCanon(String username) {
+        UnidadDeVenta unidad = getDelResponsable(username);
+        return unidad.calcularCanon(unidad.getFestival().getCosto());
     }
 
     // La subclase concreta según el tipo elegido: después se la trata como UnidadDeVenta
