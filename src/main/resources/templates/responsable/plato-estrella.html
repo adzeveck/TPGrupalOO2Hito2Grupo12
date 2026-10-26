@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head}"></head>
+<body>
+<nav th:replace="~{layout :: navbar}"></nav>
+
+<main class="container py-4">
+    <h1 class="mb-1">Plato estrella</h1>
+    <p class="text-muted mb-4">El plato más pedido de tu unidad en el festival.</p>
+
+    <div th:if="${errorGeneral != null}">
+        <div class="alert alert-warning" th:text="${errorGeneral}">Mensaje</div>
+        <a class="btn btn-secondary" th:href="@{/responsable/index}">Volver al panel</a>
+    </div>
+
+    <div class="card text-center" th:if="${plato != null}">
+        <div class="card-body py-5">
+            <p class="text-muted mb-1">El más pedido es</p>
+            <h2 class="display-4 mb-3" th:text="${plato.nombre}">Plato</h2>
+            <p class="lead mb-1">
+                <strong th:text="${plato.cantidad}">0</strong> unidades vendidas
+            </p>
+            <p class="text-muted mb-0">
+                <span th:text="${plato.unidad}">Unidad</span> ·
+                <span th:text="${plato.festival}">Festival</span>
+            </p>
+        </div>
+    </div>
+
+    <a class="btn btn-link px-0 mt-3" th:href="@{/responsable/index}">Volver al panel</a>
+</main>
+
+<footer th:replace="~{layout :: footer}"></footer>
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>
