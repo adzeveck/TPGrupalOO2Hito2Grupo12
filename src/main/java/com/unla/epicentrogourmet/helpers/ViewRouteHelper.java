@@ -12,10 +12,12 @@ public class ViewRouteHelper {
 	public final static String ADMIN_INDEX = "admin/index";
 	public final static String ADMIN_FESTIVALES = "admin/festivales";
 	public final static String ADMIN_FESTIVAL_UNIDADES = "admin/festival-unidades";
+	public final static String ADMIN_CANON = "admin/canon";
 
 	//RESPONSABLE
 	public final static String RESPONSABLE_INDEX = "responsable/index";
 	public final static String RESPONSABLE_CANON = "responsable/canon";
+	public final static String RESPONSABLE_PLATO_ESTRELLA = "responsable/plato-estrella";
 
 	//EMPLEADO
 	public final static String EMPLEADO_INDEX = "empleado/index";
