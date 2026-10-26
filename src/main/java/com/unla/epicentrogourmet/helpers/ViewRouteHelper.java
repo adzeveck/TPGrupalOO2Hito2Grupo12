@@ -13,6 +13,7 @@ public class ViewRouteHelper {
 
 	//RESPONSABLE
 	public final static String RESPONSABLE_INDEX = "responsable/index";
+	public final static String RESPONSABLE_CANON = "responsable/canon";
 
 	//EMPLEADO
 	public final static String EMPLEADO_INDEX = "empleado/index";

@@ -71,6 +71,9 @@ public abstract class UnidadDeVenta {
 	// Lógica propia del código (enunciado): prefijo de la subclase + 8 dígitos = 10 caracteres
 	public abstract String getPrefijoCodigo();
 
+	// Canon del festival: cada subclase aplica su fórmula con los montos del festival
+	public abstract BigDecimal calcularCanon(Costo costo);
+
 	public boolean tieneCodigoValido() {
 		return codigo != null && codigo.matches(getPrefijoCodigo() + "\\d{8}");
 	}

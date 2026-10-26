@@ -1,5 +1,7 @@
 package com.unla.epicentrogourmet.entities;
 
+import java.math.BigDecimal;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import lombok.Getter;
@@ -24,6 +26,16 @@ public class FoodTruck extends UnidadDeVenta {
 	@Override
 	public String getPrefijoCodigo() {
 		return "FT";
+	}
+
+	// Superficie por el costo del m² + el plus si necesita electricidad
+	@Override
+	public BigDecimal calcularCanon(Costo costo) {
+		BigDecimal canon = getSuperficie().multiply(costo.getCostoPorM2());
+		if (requiereElectricidad) {
+			canon = canon.add(costo.getPlusElectricidad());
+		}
+		return canon;
 	}
 
 }
