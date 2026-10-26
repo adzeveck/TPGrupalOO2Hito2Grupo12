@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head}"></head>
+<body>
+<nav th:replace="~{layout :: navbar}"></nav>
+
+<main class="container py-4">
+    <h1 class="mb-1">Festivales</h1>
+    <p class="text-muted mb-4">Todos los festivales cargados y sus unidades de venta.</p>
+
+    <p class="alert alert-info" th:if="${#lists.isEmpty(festivales)}">
+        Todavía no hay festivales cargados.
+    </p>
+
+    <div class="card mb-4" th:unless="${#lists.isEmpty(festivales)}">
+        <div class="table-responsive">
+            <table class="table mb-0">
+                <thead>
+                    <tr>
+                        <th>Festival</th>
+                        <th>Temporada</th>
+                        <th>Fechas</th>
+                        <th>Unidades</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="festival : ${festivales}">
+                        <td th:text="${festival.nombre}">Festival</td>
+                        <td th:text="${festival.temporada}">Temporada</td>
+                        <td th:text="|${#temporals.format(festival.fechaInicio, 'dd/MM/yyyy')} al ${#temporals.format(festival.fechaFin, 'dd/MM/yyyy')}|">01/10/2026 al 15/11/2026</td>
+                        <td th:text="${festival.unidades.size()}">0</td>
+                        <td class="text-right">
+                            <a class="btn btn-sm btn-outline-primary"
+                               th:href="@{/admin/festivales/{id}/unidades(id=${festival.id})}">Ver unidades</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <a class="btn btn-link px-0" th:href="@{/admin/index}">Volver al panel</a>
+</main>
+
+<footer th:replace="~{layout :: footer}"></footer>
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>
