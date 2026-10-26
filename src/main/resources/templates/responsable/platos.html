@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head}"></head>
+<body>
+<nav th:replace="~{layout :: navbar}"></nav>
+
+<main class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-1">
+        <h1 class="mb-0">Mis platos</h1>
+        <a class="btn btn-primary" th:href="@{/responsable/platos/nuevo}">Nuevo plato</a>
+    </div>
+    <p class="text-muted mb-4">Los platos de tu unidad. Los dados de baja no se ofrecen en los pedidos nuevos.</p>
+
+    <div class="alert alert-success" th:if="${guardado}">Plato guardado.</div>
+    <div class="alert alert-success" th:if="${estado == 'activo'}">
+        Plato reactivado: vuelve a aparecer en el formulario de pedidos.
+    </div>
+    <div class="alert alert-success" th:if="${estado == 'inactivo'}">
+        Plato dado de baja: ya no aparece en los pedidos nuevos, pero los pedidos viejos lo conservan.
+    </div>
+    <div class="alert alert-warning" th:if="${errorGeneral != null}" th:text="${errorGeneral}">Mensaje</div>
+
+    <div th:if="${platos != null}">
+        <p class="alert alert-info" th:if="${#lists.isEmpty(platos)}">
+            Todavía no cargaste platos. Empezá con "Nuevo plato".
+        </p>
+
+        <div class="card mb-4" th:unless="${#lists.isEmpty(platos)}">
+            <div class="table-responsive">
+                <table class="table mb-0 align-middle">
+                    <thead>
+                        <tr>
+                            <th>Plato</th>
+                            <th class="text-right">Precio</th>
+                            <th class="text-right">Costo</th>
+                            <th>Estado</th>
+                            <th class="text-right">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="plato : ${platos}">
+                            <td th:text="${plato.nombre}">Plato</td>
+                            <td class="text-right"
+                                th:text="'$ ' + ${#numbers.formatDecimal(plato.precio, 1, 'POINT', 2, 'COMMA')}">$ 0,00</td>
+                            <td class="text-right"
+                                th:text="'$ ' + ${#numbers.formatDecimal(plato.costo, 1, 'POINT', 2, 'COMMA')}">$ 0,00</td>
+                            <td>
+                                <span class="badge badge-success" th:if="${plato.activo}">Activo</span>
+                                <span class="badge badge-secondary" th:unless="${plato.activo}">Inactivo</span>
+                            </td>
+                            <td class="text-right">
+                                <a class="btn btn-sm btn-outline-secondary"
+                                   th:href="@{/responsable/platos/{id}/editar(id=${plato.id})}">Editar</a>
+                                <form class="d-inline" method="post"
+                                      th:action="@{/responsable/platos/{id}/estado(id=${plato.id})}">
+                                    <button type="submit" class="btn btn-sm"
+                                            th:classappend="${plato.activo} ? 'btn-outline-danger' : 'btn-outline-success'"
+                                            th:text="${plato.activo} ? 'Dar de baja' : 'Reactivar'">Dar de baja</button>
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <a class="btn btn-link px-0" th:href="@{/responsable/index}">Volver al panel</a>
+</main>
+
+<footer th:replace="~{layout :: footer}"></footer>
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>

@@ -13,17 +13,27 @@
         <div class="card">
             <div class="card-header">Acciones del responsable</div>
             <div class="list-group list-group-flush">
-                <span class="list-group-item">Empleados: alta, baja, modificación y filtros</span>
-                <span class="list-group-item">Alta de platos</span>
+                <a class="list-group-item list-group-item-action" th:href="@{/responsable/platos}">
+                    Mis platos: alta, modificación y baja
+                </a>
                 <a class="list-group-item list-group-item-action" th:href="@{/responsable/canon}">
                     Canon de la unidad
                 </a>
-                <span class="list-group-item">Liquidación de haberes</span>
-                <span class="list-group-item">Reporte de recaudación</span>
-                <span class="list-group-item">Rentabilidad neta (total y entre dos fechas)</span>
                 <a class="list-group-item list-group-item-action" th:href="@{/responsable/plato-estrella}">
                     Plato estrella
                 </a>
+                <span class="list-group-item text-muted">
+                    Empleados: alta, baja, modificación y filtros <span class="badge badge-secondary">Pendiente</span>
+                </span>
+                <span class="list-group-item text-muted">
+                    Liquidación de haberes <span class="badge badge-secondary">Pendiente</span>
+                </span>
+                <span class="list-group-item text-muted">
+                    Reporte de recaudación <span class="badge badge-secondary">Pendiente</span>
+                </span>
+                <span class="list-group-item text-muted">
+                    Rentabilidad neta (total y entre dos fechas) <span class="badge badge-secondary">Pendiente</span>
+                </span>
             </div>
         </div>
     </main>
