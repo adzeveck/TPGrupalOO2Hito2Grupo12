@@ -12,6 +12,8 @@ public interface IFestivalService {
 	// Festivales en los que todavía se puede registrar una unidad
 	List<Festival> getVigentes();
 
+	// Un festival con sus unidades cargadas
+	Festival getConUnidades(Integer id);
 
 }
 

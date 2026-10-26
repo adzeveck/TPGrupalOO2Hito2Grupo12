@@ -10,6 +10,8 @@ public class ViewRouteHelper {
 
 	//ADMIN
 	public final static String ADMIN_INDEX = "admin/index";
+	public final static String ADMIN_FESTIVALES = "admin/festivales";
+	public final static String ADMIN_FESTIVAL_UNIDADES = "admin/festival-unidades";
 
 	//RESPONSABLE
 	public final static String RESPONSABLE_INDEX = "responsable/index";
