@@ -18,6 +18,8 @@ public class ViewRouteHelper {
 	public final static String RESPONSABLE_INDEX = "responsable/index";
 	public final static String RESPONSABLE_CANON = "responsable/canon";
 	public final static String RESPONSABLE_PLATO_ESTRELLA = "responsable/plato-estrella";
+	public final static String PLATO_LIST = "responsable/platos";
+	public final static String PLATO_FORM = "responsable/plato-form";
 
 	//EMPLEADO
 	public final static String EMPLEADO_INDEX = "empleado/index";
@@ -35,6 +37,7 @@ public class ViewRouteHelper {
 	public final static String ROUTE = "/index";
 	public final static String ADMIN_ROOT = "/admin/index";
 	public final static String RESPONSABLE_ROOT = "/responsable/index";
+	public final static String PLATOS_ROOT = "/responsable/platos";
 	public final static String EMPLEADO_ROOT = "/empleado/index";
 	public final static String PEDIDOS_ROOT = "/empleado/pedidos";
 	public final static String LOGIN_REGISTRADO = "/login?registrado";
