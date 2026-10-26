@@ -31,7 +31,7 @@ public class ViewRouteHelper {
 	public final static String REGISTRO_FORM = "registro/form";
 
 	//PRUEBA EMAIL
-	public final static String EMAIL_TEST_FORM = "admin/emailTest";
+	public final static String EMAIL_TEST_FORM = "responsable/emailTest";
 
 	/**** Redirects ****/
 	public final static String ROUTE = "/index";
@@ -41,6 +41,7 @@ public class ViewRouteHelper {
 	public final static String EMPLEADO_ROOT = "/empleado/index";
 	public final static String PEDIDOS_ROOT = "/empleado/pedidos";
 	public final static String LOGIN_REGISTRADO = "/login?registrado";
-	public final static String EMAIL_TEST_ROOT = "/admin/emailTest";
+	public final static String EMAIL_TEST_ROOT = "/responsable/emailTest";
+
 
 }
