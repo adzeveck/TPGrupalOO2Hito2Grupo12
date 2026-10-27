@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.unla.epicentrogourmet.dtos.PlatoDTO;
+import com.unla.epicentrogourmet.dtos.RecaudacionDiariaDTO;
 import com.unla.epicentrogourmet.dtos.ReporteMayoresCanonDTO;
 import com.unla.epicentrogourmet.dtos.ReporteVentaDTO;
 import com.unla.epicentrogourmet.entities.Costo;
@@ -94,6 +95,13 @@ public class ReporteService implements IReporteService {
 				.filter(reporte -> reporte.getCodigo().equals(unidad.getCodigo()))
 				.findFirst()
 				.orElseThrow(() -> new ValidacionException(null, "No se encontró la recaudación de tu unidad"));
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<RecaudacionDiariaDTO> getRecaudacionDiaria(String username) {
+		UnidadDeVenta unidad = unidadDeVentaService.getDelResponsable(username);
+		return pedidoRepository.findRecaudacionDiaria(unidad.getId());
 	}
 
 	private ReporteMayoresCanonDTO aReporte(UnidadDeVenta unidad, Costo costo) {

@@ -75,4 +75,19 @@ public class ResponsableController {
 		}
 		return modelAndView;
 	}
+
+	// Recaudación de la unidad del responsable día por día
+	@GetMapping("/recaudacion/diaria")
+	public ModelAndView recaudacionDiaria(Authentication authentication) {
+		ModelAndView modelAndView = new ModelAndView(ViewRouteHelper.RESPONSABLE_RECAUDACION_DIARIA);
+		try {
+			UnidadDeVenta unidad = unidadDeVentaService.getDelResponsable(authentication.getName());
+			modelAndView.addObject("unidad", unidad);
+			modelAndView.addObject("festival", unidad.getFestival());
+			modelAndView.addObject("dias", reporteService.getRecaudacionDiaria(authentication.getName()));
+		} catch (ValidacionException e) {
+			modelAndView.addObject("errorGeneral", e.getMessage());
+		}
+		return modelAndView;
+	}
 }

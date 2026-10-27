@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import com.unla.epicentrogourmet.dtos.RecaudacionDiariaDTO;
 import com.unla.epicentrogourmet.dtos.ReporteVentaDTO;
 import com.unla.epicentrogourmet.entities.Pedido;
 
@@ -28,4 +29,10 @@ public interface IPedidoRepository extends JpaRepository<Pedido, Integer> {
 			+ "GROUP BY u.id, u.nombreComercial, u.codigo "
 			+ "ORDER BY SUM(p.total) DESC, u.nombreComercial ASC")
 	List<ReporteVentaDTO> findRecaudacionPorUnidad(@Param("festivalId") Integer festivalId);
+
+	// Recaudación de una unidad día por día, en orden cronológico. Solo aparecen los días con pedidos
+	@Query("SELECT new com.unla.epicentrogourmet.dtos.RecaudacionDiariaDTO(p.fecha, COUNT(p), SUM(p.total)) "
+			+ "FROM Pedido p WHERE p.unidad.id = :unidadId "
+			+ "GROUP BY p.fecha ORDER BY p.fecha ASC")
+	List<RecaudacionDiariaDTO> findRecaudacionDiaria(@Param("unidadId") Integer unidadId);
 }

@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import com.unla.epicentrogourmet.dtos.PlatoDTO;
+import com.unla.epicentrogourmet.dtos.RecaudacionDiariaDTO;
 import com.unla.epicentrogourmet.dtos.ReporteMayoresCanonDTO;
 import com.unla.epicentrogourmet.dtos.ReporteVentaDTO;
 
@@ -24,4 +25,7 @@ public interface IReporteService {
 
 	// Responsable: lo que vendió su unidad en el festival
 	ReporteVentaDTO getRecaudacionDeMiUnidad(String username);
+
+	// Responsable: lo que vendió su unidad cada día del festival
+	List<RecaudacionDiariaDTO> getRecaudacionDiaria(String username);
 }
