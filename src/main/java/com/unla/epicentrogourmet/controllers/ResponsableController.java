@@ -60,4 +60,19 @@ public class ResponsableController {
 		}
 		return modelAndView;
 	}
+
+	// Recaudación de la unidad del responsable en su festival, y el total del festival como referencia
+	@GetMapping("/recaudacion")
+	public ModelAndView recaudacion(Authentication authentication) {
+		ModelAndView modelAndView = new ModelAndView(ViewRouteHelper.RESPONSABLE_RECAUDACION);
+		try {
+			UnidadDeVenta unidad = unidadDeVentaService.getDelResponsable(authentication.getName());
+			modelAndView.addObject("festival", unidad.getFestival());
+			modelAndView.addObject("reporte", reporteService.getRecaudacionDeMiUnidad(authentication.getName()));
+			modelAndView.addObject("totalFestival", reporteService.getRecaudacionTotal(unidad.getFestival().getId()));
+		} catch (ValidacionException e) {
+			modelAndView.addObject("errorGeneral", e.getMessage());
+		}
+		return modelAndView;
+	}
 }

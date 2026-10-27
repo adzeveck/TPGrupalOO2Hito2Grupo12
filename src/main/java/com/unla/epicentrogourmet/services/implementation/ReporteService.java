@@ -1,5 +1,6 @@
 package com.unla.epicentrogourmet.services.implementation;
 
+import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.List;
 
@@ -8,10 +9,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.unla.epicentrogourmet.dtos.PlatoDTO;
 import com.unla.epicentrogourmet.dtos.ReporteMayoresCanonDTO;
+import com.unla.epicentrogourmet.dtos.ReporteVentaDTO;
 import com.unla.epicentrogourmet.entities.Costo;
 import com.unla.epicentrogourmet.entities.Festival;
 import com.unla.epicentrogourmet.entities.UnidadDeVenta;
 import com.unla.epicentrogourmet.exceptions.ValidacionException;
+import com.unla.epicentrogourmet.repositories.IPedidoRepository;
 import com.unla.epicentrogourmet.repositories.IPlatoRepository;
 import com.unla.epicentrogourmet.services.IFestivalService;
 import com.unla.epicentrogourmet.services.IReporteService;
@@ -25,12 +28,14 @@ public class ReporteService implements IReporteService {
 	private final IFestivalService festivalService;
 	private final IUnidadDeVentaService unidadDeVentaService;
 	private final IPlatoRepository platoRepository;
+	private final IPedidoRepository pedidoRepository;
 
 	public ReporteService(IFestivalService festivalService, IUnidadDeVentaService unidadDeVentaService,
-			IPlatoRepository platoRepository) {
+			IPlatoRepository platoRepository, IPedidoRepository pedidoRepository) {
 		this.festivalService = festivalService;
 		this.unidadDeVentaService = unidadDeVentaService;
 		this.platoRepository = platoRepository;
+		this.pedidoRepository = pedidoRepository;
 	}
 
 	@Override
@@ -63,6 +68,32 @@ public class ReporteService implements IReporteService {
 		estrella.setFestival(unidad.getFestival().getNombre());
 		estrella.setUnidad(unidad.getNombreComercial());
 		return estrella;
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<ReporteVentaDTO> getRankingRecaudacion(Integer festivalId) {
+		festivalService.getConUnidades(festivalId); // si el festival no existe, lanza la ValidacionException
+		return pedidoRepository.findRecaudacionPorUnidad(festivalId); // ya viene ordenado por la consulta
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public BigDecimal getRecaudacionTotal(Integer festivalId) {
+		return getRankingRecaudacion(festivalId).stream()
+				.map(ReporteVentaDTO::getRecaudacion)
+				.reduce(BigDecimal.ZERO, BigDecimal::add);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public ReporteVentaDTO getRecaudacionDeMiUnidad(String username) {
+		UnidadDeVenta unidad = unidadDeVentaService.getDelResponsable(username);
+		// Misma consulta que el ranking: de las unidades del festival, la que tiene su código (es único)
+		return getRankingRecaudacion(unidad.getFestival().getId()).stream()
+				.filter(reporte -> reporte.getCodigo().equals(unidad.getCodigo()))
+				.findFirst()
+				.orElseThrow(() -> new ValidacionException(null, "No se encontró la recaudación de tu unidad"));
 	}
 
 	private ReporteMayoresCanonDTO aReporte(UnidadDeVenta unidad, Costo costo) {
