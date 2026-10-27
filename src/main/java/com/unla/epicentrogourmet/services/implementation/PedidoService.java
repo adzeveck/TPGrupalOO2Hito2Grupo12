@@ -153,6 +153,23 @@ public class PedidoService implements IPedidoService {
 		return cierre;
 	}
 
+	// Es corregir un error de carga del día, no dar de baja un pedido histórico:
+	// los de días anteriores ya forman parte de la recaudación y de cierres de caja pasados
+	@Override
+	@Transactional
+	public void anular(String username, Integer pedidoId) {
+		Cajero cajero = getCajero(username);
+		// Buscar por id y unidad a la vez: un cajero no puede anular pedidos de otra unidad
+		Pedido pedido = pedidoRepository.findByIdAndUnidadId(pedidoId, cajero.getUnidad().getId())
+				.orElseThrow(() -> new ValidacionException(null, "El pedido no pertenece a tu unidad de venta"));
+		if (!pedido.getFecha().equals(LocalDate.now())) {
+			throw new ValidacionException(null, "Solo se pueden anular pedidos de hoy: el pedido #" + pedido.getId()
+					+ " es del " + pedido.getFecha().format(FORMATO_FECHA));
+		}
+		// cascade = ALL en Pedido.detalles: se borran también sus renglones
+		pedidoRepository.delete(pedido);
+	}
+
 	// El empleado logueado, siempre que sea cajero y tenga unidad asignada
 	private Cajero getCajero(String username) {
 		Personal empleado = personalRepository.findByUsuarioUsername(username)

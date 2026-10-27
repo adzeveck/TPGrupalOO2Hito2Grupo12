@@ -26,6 +26,12 @@
                   th:text="'por $ ' + ${#numbers.formatDecimal(nuevo[0].total, 1, 'POINT', 2, 'COMMA')}">por $ 0,00</span>.
         </div>
 
+        <!-- Aviso de la anulación (?anulado=ID) o del motivo por el que no se pudo anular -->
+        <div class="alert alert-info" th:if="${anulado != null}">
+            Pedido <strong th:text="'#' + ${anulado}">#1</strong> anulado: ya no cuenta en la caja del día.
+        </div>
+        <div class="alert alert-warning" th:if="${errorAnular != null}" th:text="${errorAnular}">Mensaje</div>
+
         <a class="btn btn-primary mb-3 mr-2" th:href="@{/empleado/pedidos/nuevo}">Nuevo pedido</a>
         <a class="btn btn-outline-secondary mb-3" th:href="@{/empleado/pedidos/cierre}">Cierre de caja</a>
 
@@ -39,6 +45,7 @@
                             <th>Pedido</th>
                             <th>Platos</th>
                             <th class="text-right">Total</th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -49,6 +56,14 @@
                                       th:text="${d.cantidad} + ' × ' + ${d.plato.nombre} + (${st.last} ? '' : ', ')">1 × Plato</span>
                             </td>
                             <td class="text-right" th:text="'$ ' + ${#numbers.formatDecimal(p.total, 1, 'POINT', 2, 'COMMA')}">$ 0,00</td>
+                            <td class="text-right">
+                                <!-- El mensaje va en un data-*: Thymeleaf no deja armar texto dentro de onsubmit -->
+                                <form method="post" th:action="@{/empleado/pedidos/{id}/anular(id=${p.id})}"
+                                      th:data-mensaje="'¿Anular el pedido #' + ${p.id} + '? Se borra y deja de contar en la caja.'"
+                                      onsubmit="return confirm(this.dataset.mensaje)">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Anular</button>
+                                </form>
+                            </td>
                         </tr>
                     </tbody>
                     <tfoot>
@@ -57,6 +72,7 @@
                                 th:text="${#lists.size(pedidos)} + ' pedidos · total del día'">Total del día</th>
                             <th class="text-right"
                                 th:text="'$ ' + ${#numbers.formatDecimal(#aggregates.sum(pedidos.![total]), 1, 'POINT', 2, 'COMMA')}">$ 0,00</th>
+                            <th></th>
                         </tr>
                     </tfoot>
                 </table>

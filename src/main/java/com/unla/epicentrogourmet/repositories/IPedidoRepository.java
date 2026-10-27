@@ -2,6 +2,7 @@ package com.unla.epicentrogourmet.repositories;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -20,6 +21,9 @@ public interface IPedidoRepository extends JpaRepository<Pedido, Integer> {
 	@Query("SELECT DISTINCT p FROM Pedido p LEFT JOIN FETCH p.detalles d LEFT JOIN FETCH d.plato "
 			+ "WHERE p.unidad.id = :unidadId AND p.fecha = :fecha ORDER BY p.id DESC")
 	List<Pedido> findByUnidadIdAndFecha(@Param("unidadId") Integer unidadId, @Param("fecha") LocalDate fecha);
+
+	// Un pedido solo se puede anular si es de la unidad del cajero logueado
+	Optional<Pedido> findByIdAndUnidadId(Integer id, Integer unidadId);
 
 	// Recaudación de cada unidad de un festival, de mayor a menor. Parte de la unidad (LEFT JOIN)
 	// para que una unidad sin pedidos también aparezca, con $0
