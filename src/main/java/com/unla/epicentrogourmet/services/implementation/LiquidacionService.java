@@ -32,9 +32,17 @@ public class LiquidacionService implements ILiquidacionService {
 	public LiquidacionHaberesDTO calcular(String username) {
 		Personal empleado = personalRepository.findByUsuarioUsername(username)
 				.orElseThrow(() -> new ValidacionException(null, "Tu usuario no corresponde a un empleado"));
+		return calcular(empleado);
+	}
+
+	// La misma cuenta para cualquier empleado, no solo el logueado: la usan la liquidación del
+	// personal de una unidad y la rentabilidad neta (que resta los sueldos)
+	@Override
+	@Transactional(readOnly = true)
+	public LiquidacionHaberesDTO calcular(Personal empleado) {
 		UnidadDeVenta unidad = empleado.getUnidad();
 		if (unidad == null) {
-			throw new ValidacionException(null, "No estás asignado a ninguna unidad de venta");
+			throw new ValidacionException(null, "El empleado no está asignado a ninguna unidad de venta");
 		}
 		Festival festival = unidad.getFestival();
 		Costo costo = festival.getCosto(); // todos los montos salen de los costos del festival: nada hardcodeado
