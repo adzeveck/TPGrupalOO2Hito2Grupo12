@@ -18,6 +18,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+
 // Abstracta: todo empleado es Cocinero o Cajero. La baja lógica está en usuario.enabled
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
@@ -53,4 +54,21 @@ public abstract class Personal {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "unidad_id")
 	private UnidadDeVenta unidad;
+
+	// Propiedades de solo lectura para presentar el subtipo y su detalle en la vista compartida del ABM.
+	@jakarta.persistence.Transient
+	public String getTipoEmpleado() {
+		return this instanceof Cocinero ? "COCINERO" : "CAJERO";
+	}
+
+	@jakarta.persistence.Transient
+	public String getDetalleEmpleado() {
+		if (this instanceof Cocinero cocinero) {
+			return cocinero.getCategoria() + (cocinero.getEspecialidad() == null ? "" : " · " + cocinero.getEspecialidad());
+		}
+		if (this instanceof Cajero cajero) {
+			return cajero.getTurno() == com.unla.epicentrogourmet.enums.Turno.MANIANA ? "Mañana" : "Noche";
+		}
+		return "";
+	}
 }

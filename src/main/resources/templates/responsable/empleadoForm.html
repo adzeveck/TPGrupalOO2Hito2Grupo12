@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head}"></head>
+<body>
+<nav th:replace="~{layout :: navbar}"></nav>
+
+<main class="container py-4">
+    <h1 class="mb-1" th:text="${edicion} ? 'Modificar empleado' : 'Alta de empleado'">Alta de empleado</h1>
+    <p class="text-muted mb-4" th:unless="${edicion}">
+        Se generará una contraseña aleatoria y se enviarán las credenciales al correo indicado.
+    </p>
+
+    <form class="card card-body mb-4" novalidate th:object="${empleado}"
+          th:action="${edicion} ? @{/responsable/empleados/{id}(id=${empleado.id})} : @{/responsable/empleados}"
+          method="post">
+        <input type="hidden" th:if="${edicion}" th:field="*{empleados.id}">
+
+        <div class="alert alert-danger" th:if="${#fields.hasGlobalErrors()}">
+            <p class="mb-0" th:each="err : ${#fields.globalErrors()}" th:text="${err}"></p>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label for="nombre">Nombre</label>
+                <input class="form-control" id="nombre" th:field="*{nombre}" maxlength="50"
+                       th:classappend="${#fields.hasErrors('nombre')} ? 'is-invalid'">
+                <small class="text-danger" th:errors="*{nombre}"></small>
+            </div>
+
+            <div class="form-group col-md-6">
+                <label for="apellido">Apellido</label>
+                <input class="form-control" id="apellido" th:field="*{apellido}" maxlength="50"
+                       th:classappend="${#fields.hasErrors('apellido')} ? 'is-invalid'">
+                <small class="text-danger" th:errors="*{apellido}"></small>
+            </div>
+
+            <div class="form-group col-md-6">
+                <label for="dni">DNI</label>
+                <input class="form-control" id="dni" th:field="*{dni}" inputmode="numeric"
+                       th:classappend="${#fields.hasErrors('dni')} ? 'is-invalid'">
+                <small class="text-danger" th:errors="*{dni}"></small>
+            </div>
+
+            <div class="form-group col-md-6">
+                <label for="fechaNacimiento">Fecha de nacimiento</label>
+                <input class="form-control" id="fechaNacimiento" type="date" th:field="*{fechaNacimiento}"
+                       th:classappend="${#fields.hasErrors('fechaNacimiento')} ? 'is-invalid'">
+                <small class="text-danger" th:errors="*{fechaNacimiento}"></small>
+            </div>
+
+            <div class="form-group col-md-6">
+                <label for="email">Correo de acceso</label>
+                <input class="form-control" id="email" type="email" th:field="*{email}" maxlength="100"
+                       th:readonly="${edicion}"
+                       th:classappend="${#fields.hasErrors('email')} ? 'is-invalid'">
+                <small class="text-danger" th:errors="*{email}"></small>
+            </div>
+
+            <div class="form-group col-md-6">
+                <label for="tipoEmpleado">Tipo</label>
+                <select class="form-control" id="tipoEmpleado" th:field="*{tipoEmpleado}"
+                        th:disabled="${edicion}"
+                        th:classappend="${#fields.hasErrors('tipoEmpleado') or #fields.hasErrors('tipoEmpleadoValido')} ? 'is-invalid'">
+                    <option value="">Elegí un tipo</option>
+                    <option value="COCINERO">Cocinero</option>
+                    <option value="CAJERO">Cajero</option>
+                </select>
+                <small class="text-danger" th:errors="*{tipoEmpleado}"></small>
+                <small class="text-danger" th:if="${#fields.hasErrors('tipoEmpleadoValido')}"
+                       th:errors="*{tipoEmpleadoValido}"></small>
+                <input type="hidden" th:if="${edicion}" th:field="*{tipoEmpleado}">
+            </div>
+
+            <div class="form-group col-md-6" id="grupoCategoria">
+                <label for="categoria">Categoría de cocina</label>
+                <select class="form-control" id="categoria" th:field="*{categoria}"
+                        th:classappend="${#fields.hasErrors('categoriaValida')} ? 'is-invalid'">
+                    <option value="">Elegí una categoría</option>
+                    <option th:each="c : ${categorias}" th:value="${c}" th:text="${c}"></option>
+                </select>
+                <small class="text-danger" th:if="${#fields.hasErrors('categoriaValida')}"
+                       th:errors="*{categoriaValida}"></small>
+            </div>
+
+            <div class="form-group col-md-6" id="grupoEspecialidad">
+                <label for="especialidad">Especialidad (opcional)</label>
+                <input class="form-control" id="especialidad" th:field="*{especialidad}" maxlength="100">
+            </div>
+
+            <div class="form-group col-md-6" id="grupoTurno">
+                <label for="turno">Turno</label>
+                <select class="form-control" id="turno" th:field="*{turno}"
+                        th:classappend="${#fields.hasErrors('turnoValido')} ? 'is-invalid'">
+                    <option value="">Elegí un turno</option>
+                    <option th:each="t : ${turnos}" th:value="${t}"
+                            th:text="${t == T(com.unla.epicentrogourmet.enums.Turno).MANIANA ? 'Mañana' : 'Noche'}">
+                    </option>
+                </select>
+                <small class="text-danger" th:if="${#fields.hasErrors('turnoValido')}"
+                       th:errors="*{turnoValido}"></small>
+            </div>
+        </div>
+
+        <div>
+            <button class="btn btn-primary" type="submit"
+                    th:text="${edicion} ? 'Guardar cambios' : 'Crear empleado y enviar credenciales'">
+                Guardar
+            </button>
+            <a class="btn btn-link" th:href="@{/responsable/empleados}">Cancelar</a>
+        </div>
+    </form>
+</main>
+
+<footer th:replace="~{layout :: footer}"></footer>
+<div th:replace="~{layout :: scripts}"></div>
+
+<script>
+    function actualizarCamposTipo() {
+        const tipo = document.getElementById('tipoEmpleado').value;
+        document.getElementById('grupoCategoria').hidden = tipo !== 'COCINERO';
+        document.getElementById('grupoEspecialidad').hidden = tipo !== 'COCINERO';
+        document.getElementById('grupoTurno').hidden = tipo !== 'CAJERO';
+    }
+
+    document.getElementById('tipoEmpleado').addEventListener('change', actualizarCamposTipo);
+    actualizarCamposTipo();
+</script>
+</body>
+</html>
