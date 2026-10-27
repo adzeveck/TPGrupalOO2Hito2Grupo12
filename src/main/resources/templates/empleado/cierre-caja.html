@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head}"></head>
+<body>
+<nav th:replace="~{layout :: navbar}"></nav>
+
+<main class="container py-4">
+    <h1 class="mb-1">Cierre de caja</h1>
+
+    <div th:if="${errorGeneral != null}">
+        <div class="alert alert-warning mt-3" th:text="${errorGeneral}">Mensaje</div>
+        <a class="btn btn-secondary" th:href="@{/empleado/index}">Volver</a>
+    </div>
+
+    <div th:if="${cierre != null}">
+        <p class="text-muted mb-4">
+            <span th:text="${cierre.unidad}">Unidad</span> ·
+            <span th:text="${#temporals.format(cierre.fecha, 'dd/MM/yyyy')}">26/10/2026</span> ·
+            <span th:text="${cierre.cajero}">Cajero</span>
+        </p>
+
+        <div class="card mb-4">
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item d-flex justify-content-between">
+                    <span>Pedidos del día</span>
+                    <strong th:text="${cierre.cantidadPedidos}">0</strong>
+                </li>
+                <li class="list-group-item d-flex justify-content-between">
+                    <span>Total a rendir</span>
+                    <strong th:text="'$ ' + ${#numbers.formatDecimal(cierre.total, 1, 'POINT', 2, 'COMMA')}">$ 0,00</strong>
+                </li>
+            </ul>
+        </div>
+
+        <p class="text-muted" th:if="${cierre.cantidadPedidos == 0}">Hoy no se cargó ningún pedido en tu unidad.</p>
+
+        <div class="card" th:unless="${cierre.cantidadPedidos == 0}">
+            <div class="card-header">Unidades vendidas por plato</div>
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead>
+                        <tr>
+                            <th>Plato</th>
+                            <th class="text-right">Unidades</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="renglon : ${cierre.unidadesPorPlato}">
+                            <td th:text="${renglon.key}">Plato</td>
+                            <td class="text-right" th:text="${renglon.value}">0</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <a class="btn btn-link px-0 mt-3" th:href="@{/empleado/pedidos}">Ver los pedidos de hoy</a>
+    </div>
+</main>
+
+<footer th:replace="~{layout :: footer}"></footer>
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>
