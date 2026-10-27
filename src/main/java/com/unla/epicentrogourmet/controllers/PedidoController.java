@@ -48,6 +48,18 @@ public class PedidoController {
 		return modelAndView;
 	}
 
+	// GET /empleado/pedidos/cierre: el cierre de caja del día de la unidad del cajero
+	@GetMapping("/cierre")
+	public ModelAndView cierreDeCaja(Authentication authentication) {
+		ModelAndView modelAndView = new ModelAndView(ViewRouteHelper.CIERRE_CAJA);
+		try {
+			modelAndView.addObject("cierre", pedidoService.getCierreDeCaja(authentication.getName()));
+		} catch (ValidacionException e) {
+			modelAndView.addObject("errorGeneral", e.getMessage());
+		}
+		return modelAndView;
+	}
+
 	// GET /empleado/pedidos/nuevo: el formulario con un renglón por plato activo
 	@GetMapping("/nuevo")
 	public ModelAndView form(Authentication authentication) {

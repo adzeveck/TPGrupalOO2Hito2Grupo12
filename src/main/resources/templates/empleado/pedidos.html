@@ -26,7 +26,8 @@
                   th:text="'por $ ' + ${#numbers.formatDecimal(nuevo[0].total, 1, 'POINT', 2, 'COMMA')}">por $ 0,00</span>.
         </div>
 
-        <a class="btn btn-primary mb-3" th:href="@{/empleado/pedidos/nuevo}">Nuevo pedido</a>
+        <a class="btn btn-primary mb-3 mr-2" th:href="@{/empleado/pedidos/nuevo}">Nuevo pedido</a>
+        <a class="btn btn-outline-secondary mb-3" th:href="@{/empleado/pedidos/cierre}">Cierre de caja</a>
 
         <p class="text-muted" th:if="${#lists.isEmpty(pedidos)}">Todavía no hay pedidos cargados hoy.</p>
 

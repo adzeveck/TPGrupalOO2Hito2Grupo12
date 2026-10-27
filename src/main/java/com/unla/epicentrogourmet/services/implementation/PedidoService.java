@@ -3,6 +3,7 @@ package com.unla.epicentrogourmet.services.implementation;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +13,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.unla.epicentrogourmet.dtos.CierreCajaDTO;
 import com.unla.epicentrogourmet.dtos.ItemPedidoDTO;
 import com.unla.epicentrogourmet.dtos.PedidoDTO;
 import com.unla.epicentrogourmet.entities.Cajero;
@@ -21,6 +23,7 @@ import com.unla.epicentrogourmet.entities.Pedido;
 import com.unla.epicentrogourmet.entities.Personal;
 import com.unla.epicentrogourmet.entities.Plato;
 import com.unla.epicentrogourmet.entities.UnidadDeVenta;
+import com.unla.epicentrogourmet.enums.Turno;
 import com.unla.epicentrogourmet.exceptions.ValidacionException;
 import com.unla.epicentrogourmet.repositories.IPedidoRepository;
 import com.unla.epicentrogourmet.repositories.IPersonalRepository;
@@ -53,16 +56,7 @@ public class PedidoService implements IPedidoService {
 	@Override
 	@Transactional(readOnly = true)
 	public UnidadDeVenta getUnidadDelCajero(String username) {
-		Personal empleado = personalRepository.findByUsuarioUsername(username)
-				.orElseThrow(() -> new ValidacionException(null, "Tu usuario no corresponde a un empleado"));
-		if (!(empleado instanceof Cajero)) {
-			throw new ValidacionException(null, "Solo un cajero puede cargar pedidos");
-		}
-		// El empleado conoce su unidad (Personal.unidad es el dueño de la FK)
-		if (empleado.getUnidad() == null) {
-			throw new ValidacionException(null, "No estás asignado a ninguna unidad de venta");
-		}
-		return empleado.getUnidad();
+		return getCajero(username).getUnidad();
 	}
 
 	@Override
@@ -127,6 +121,50 @@ public class PedidoService implements IPedidoService {
 	public List<Pedido> getPedidosDeHoy(String username) {
 		UnidadDeVenta unidad = getUnidadDelCajero(username);
 		return pedidoRepository.findByUnidadIdAndFecha(unidad.getId(), LocalDate.now());
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public CierreCajaDTO getCierreDeCaja(String username) {
+		Cajero cajero = getCajero(username);
+		LocalDate hoy = LocalDate.now();
+		// Misma consulta que "Pedidos de hoy": trae los renglones y platos de cada pedido
+		List<Pedido> pedidos = pedidoRepository.findByUnidadIdAndFecha(cajero.getUnidad().getId(), hoy);
+
+		CierreCajaDTO cierre = new CierreCajaDTO();
+		cierre.setFecha(hoy);
+		cierre.setUnidad(cajero.getUnidad().getNombreComercial());
+		cierre.setCajero(cajero.getNombre() + " " + cajero.getApellido()
+				+ " (turno " + (cajero.getTurno() == Turno.NOCHE ? "noche" : "mañana") + ")");
+		cierre.setCantidadPedidos(pedidos.size());
+		// El total sale de lo que se cobró en cada pedido, no del precio actual de los platos
+		cierre.setTotal(pedidos.stream().map(Pedido::getTotal).reduce(BigDecimal.ZERO, BigDecimal::add));
+
+		// Unidades vendidas por plato, sumando los renglones de todos los pedidos del día
+		Map<String, Integer> unidades = new HashMap<>();
+		for (Pedido pedido : pedidos) {
+			for (DetallePedido detalle : pedido.getDetalles()) {
+				unidades.merge(detalle.getPlato().getNombre(), detalle.getCantidad(), Integer::sum);
+			}
+		}
+		unidades.entrySet().stream()
+				.sorted(Map.Entry.<String, Integer>comparingByValue().reversed().thenComparing(Map.Entry.comparingByKey()))
+				.forEach(renglon -> cierre.getUnidadesPorPlato().put(renglon.getKey(), renglon.getValue()));
+		return cierre;
+	}
+
+	// El empleado logueado, siempre que sea cajero y tenga unidad asignada
+	private Cajero getCajero(String username) {
+		Personal empleado = personalRepository.findByUsuarioUsername(username)
+				.orElseThrow(() -> new ValidacionException(null, "Tu usuario no corresponde a un empleado"));
+		if (!(empleado instanceof Cajero cajero)) {
+			throw new ValidacionException(null, "Solo un cajero puede cargar pedidos y cerrar la caja");
+		}
+		// El empleado conoce su unidad (Personal.unidad es el dueño de la FK)
+		if (cajero.getUnidad() == null) {
+			throw new ValidacionException(null, "No estás asignado a ninguna unidad de venta");
+		}
+		return cajero;
 	}
 
 	// La unidad del cajero, siempre que su festival esté activo hoy
