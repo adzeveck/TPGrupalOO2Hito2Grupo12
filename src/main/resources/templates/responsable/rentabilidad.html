@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head}"></head>
+<body>
+<nav th:replace="~{layout :: navbar}"></nav>
+
+<main class="container py-4">
+    <h1 class="mb-1">Rentabilidad neta</h1>
+    <p class="text-muted mb-4">Lo que ganó tu unidad: ventas menos el costo de los platos, los sueldos y el canon.</p>
+
+    <!-- Sin fechas se calcula el festival completo; con fechas, ese período -->
+    <form class="card card-body mb-4" method="get" th:action="@{/responsable/rentabilidad}" th:if="${festival != null}">
+        <div class="form-row align-items-end">
+            <div class="form-group col-md-4 mb-md-0">
+                <label for="desde">Desde</label>
+                <input type="date" class="form-control" id="desde" name="desde"
+                       th:value="${desde}" th:min="${festival.fechaInicio}" th:max="${festival.fechaFin}"/>
+            </div>
+            <div class="form-group col-md-4 mb-md-0">
+                <label for="hasta">Hasta</label>
+                <input type="date" class="form-control" id="hasta" name="hasta"
+                       th:value="${hasta}" th:min="${festival.fechaInicio}" th:max="${festival.fechaFin}"/>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary btn-block">Calcular</button>
+            </div>
+            <div class="col-md-2">
+                <a class="btn btn-outline-secondary btn-block" th:href="@{/responsable/rentabilidad}">Festival completo</a>
+            </div>
+        </div>
+    </form>
+
+    <div th:if="${errorGeneral != null}">
+        <div class="alert alert-warning" th:text="${errorGeneral}">Mensaje</div>
+    </div>
+
+    <div th:if="${rentabilidad != null}" th:with="r=${rentabilidad}">
+        <p class="text-muted mb-3">
+            <span th:text="${r.unidad}">Unidad</span> · <span th:text="${r.festival}">Festival</span> ·
+            del <span th:text="${#temporals.format(r.desde, 'dd/MM/yyyy')}">01/10/2026</span>
+            al <span th:text="${#temporals.format(r.hasta, 'dd/MM/yyyy')}">15/11/2026</span>
+            (<span th:text="${r.dias}">46</span> de <span th:text="${r.diasFestival}">46</span> días)
+        </p>
+
+        <div class="card mb-4">
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item d-flex justify-content-between">
+                    <span>Ventas</span>
+                    <span th:text="'$ ' + ${#numbers.formatDecimal(r.ventas, 1, 'POINT', 2, 'COMMA')}">$ 0,00</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between">
+                    <span>− Costo de los platos vendidos</span>
+                    <span th:text="'$ ' + ${#numbers.formatDecimal(r.costoPlatos, 1, 'POINT', 2, 'COMMA')}">$ 0,00</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between font-weight-bold">
+                    <span>= Ganancia bruta</span>
+                    <span th:text="'$ ' + ${#numbers.formatDecimal(r.gananciaBruta, 1, 'POINT', 2, 'COMMA')}">$ 0,00</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between">
+                    <span>− Sueldos <small class="text-muted" th:unless="${r.festivalCompleto}"
+                                          th:text="'(proporcional a ' + ${r.dias} + ' de ' + ${r.diasFestival} + ' días)'">(proporcional)</small></span>
+                    <span th:text="'$ ' + ${#numbers.formatDecimal(r.sueldos, 1, 'POINT', 2, 'COMMA')}">$ 0,00</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between">
+                    <span>− Canon <small class="text-muted" th:unless="${r.festivalCompleto}"
+                                         th:text="'(proporcional a ' + ${r.dias} + ' de ' + ${r.diasFestival} + ' días)'">(proporcional)</small></span>
+                    <span th:text="'$ ' + ${#numbers.formatDecimal(r.canon, 1, 'POINT', 2, 'COMMA')}">$ 0,00</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between font-weight-bold"
+                    th:classappend="${r.rentabilidadNeta.signum() < 0} ? 'list-group-item-danger' : 'list-group-item-success'">
+                    <span>= Rentabilidad neta</span>
+                    <span th:text="'$ ' + ${#numbers.formatDecimal(r.rentabilidadNeta, 1, 'POINT', 2, 'COMMA')}">$ 0,00</span>
+                </li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <div class="card-header">Sueldos del personal activo (por el festival completo)</div>
+            <p class="card-body text-muted mb-0" th:if="${#lists.isEmpty(r.liquidaciones)}">La unidad no tiene personal activo.</p>
+            <div class="table-responsive" th:unless="${#lists.isEmpty(r.liquidaciones)}">
+                <table class="table mb-0">
+                    <thead>
+                        <tr>
+                            <th>Empleado</th>
+                            <th>Puesto</th>
+                            <th class="text-right">Total a cobrar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="l : ${r.liquidaciones}">
+                            <td th:text="${l.empleado}">Nombre Apellido</td>
+                            <td th:text="${l.puesto}">Puesto</td>
+                            <td class="text-right" th:text="'$ ' + ${#numbers.formatDecimal(l.total, 1, 'POINT', 2, 'COMMA')}">$ 0,00</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <a class="btn btn-link px-0 mt-3" th:href="@{/responsable/index}">Volver al panel</a>
+</main>
+
+<footer th:replace="~{layout :: footer}"></footer>
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>

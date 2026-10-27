@@ -1,5 +1,6 @@
 package com.unla.epicentrogourmet.repositories;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -21,6 +22,18 @@ public interface IPedidoRepository extends JpaRepository<Pedido, Integer> {
 	@Query("SELECT DISTINCT p FROM Pedido p LEFT JOIN FETCH p.detalles d LEFT JOIN FETCH d.plato "
 			+ "WHERE p.unidad.id = :unidadId AND p.fecha = :fecha ORDER BY p.id DESC")
 	List<Pedido> findByUnidadIdAndFecha(@Param("unidadId") Integer unidadId, @Param("fecha") LocalDate fecha);
+
+	// Ventas de una unidad entre dos fechas (inclusive). Sin pedidos, SUM devuelve null
+	@Query("SELECT SUM(p.total) FROM Pedido p "
+			+ "WHERE p.unidad.id = :unidadId AND p.fecha BETWEEN :desde AND :hasta")
+	BigDecimal sumVentas(@Param("unidadId") Integer unidadId, @Param("desde") LocalDate desde,
+			@Param("hasta") LocalDate hasta);
+
+	// Costo de producción de lo vendido: cantidad de cada renglón por el costo de su plato
+	@Query("SELECT SUM(d.cantidad * d.plato.costo) FROM DetallePedido d "
+			+ "WHERE d.pedido.unidad.id = :unidadId AND d.pedido.fecha BETWEEN :desde AND :hasta")
+	BigDecimal sumCostoPlatos(@Param("unidadId") Integer unidadId, @Param("desde") LocalDate desde,
+			@Param("hasta") LocalDate hasta);
 
 	// Un pedido solo se puede anular si es de la unidad del cajero logueado
 	Optional<Pedido> findByIdAndUnidadId(Integer id, Integer unidadId);

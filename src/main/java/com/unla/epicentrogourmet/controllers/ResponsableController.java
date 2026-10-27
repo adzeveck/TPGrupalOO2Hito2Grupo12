@@ -1,16 +1,21 @@
 package com.unla.epicentrogourmet.controllers;
 
+import java.time.LocalDate;
+
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.unla.epicentrogourmet.entities.FoodTruck;
 import com.unla.epicentrogourmet.entities.UnidadDeVenta;
 import com.unla.epicentrogourmet.exceptions.ValidacionException;
 import com.unla.epicentrogourmet.helpers.ViewRouteHelper;
+import com.unla.epicentrogourmet.services.IRentabilidadService;
 import com.unla.epicentrogourmet.services.IReporteService;
 import com.unla.epicentrogourmet.services.IUnidadDeVentaService;
 
@@ -21,10 +26,13 @@ public class ResponsableController {
 
 	private final IUnidadDeVentaService unidadDeVentaService;
 	private final IReporteService reporteService;
+	private final IRentabilidadService rentabilidadService;
 
-	public ResponsableController(IUnidadDeVentaService unidadDeVentaService, IReporteService reporteService) {
+	public ResponsableController(IUnidadDeVentaService unidadDeVentaService, IReporteService reporteService,
+			IRentabilidadService rentabilidadService) {
 		this.unidadDeVentaService = unidadDeVentaService;
 		this.reporteService = reporteService;
+		this.rentabilidadService = rentabilidadService;
 	}
 
 	@GetMapping("/index")
@@ -70,6 +78,24 @@ public class ResponsableController {
 			modelAndView.addObject("festival", unidad.getFestival());
 			modelAndView.addObject("reporte", reporteService.getRecaudacionDeMiUnidad(authentication.getName()));
 			modelAndView.addObject("totalFestival", reporteService.getRecaudacionTotal(unidad.getFestival().getId()));
+		} catch (ValidacionException e) {
+			modelAndView.addObject("errorGeneral", e.getMessage());
+		}
+		return modelAndView;
+	}
+
+	// Rentabilidad neta: sin fechas, el festival completo; con fechas, ese período
+	@GetMapping("/rentabilidad")
+	public ModelAndView rentabilidad(Authentication authentication,
+			@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate desde,
+			@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate hasta) {
+		ModelAndView modelAndView = new ModelAndView(ViewRouteHelper.RESPONSABLE_RENTABILIDAD);
+		try {
+			// El festival se pasa siempre: el formulario usa sus fechas como límites
+			modelAndView.addObject("festival", unidadDeVentaService.getDelResponsable(authentication.getName()).getFestival());
+			modelAndView.addObject("desde", desde);
+			modelAndView.addObject("hasta", hasta);
+			modelAndView.addObject("rentabilidad", rentabilidadService.calcular(authentication.getName(), desde, hasta));
 		} catch (ValidacionException e) {
 			modelAndView.addObject("errorGeneral", e.getMessage());
 		}
