@@ -99,7 +99,9 @@ Cada caso de uso entra a `main` por Pull Request desde una rama `CU<Funcionalida
 | Cálculo del canon de la unidad de venta (`/responsable/canon`) | Bautista Nuñez | [#6](https://github.com/adzeveck/TPGrupalOO2Hito2Grupo12/pull/6) |
 | Ver festivales y unidades de venta de un festival (`/admin/festivales`) | Bautista Nuñez | [#7](https://github.com/adzeveck/TPGrupalOO2Hito2Grupo12/pull/7) |
 | Top de unidades por canon y plato estrella (`/admin/canon`, `/responsable/plato-estrella`) | Bautista Nuñez | [#8](https://github.com/adzeveck/TPGrupalOO2Hito2Grupo12/pull/8) |
-| Alta, modificación y baja lógica de platos (`/responsable/platos`) | Bautista Nuñez | [#9](https://github.com/adzeveck/TPGrupalOO2Hito2Grupo12/pull/9) |
+| Alta de platos (`/responsable/platos`) | Bautista Nuñez | [#9](https://github.com/adzeveck/TPGrupalOO2Hito2Grupo12/pull/9) |
+| CU propio: modificación de un plato del menú (`/responsable/platos/{id}/editar`) | Bautista Nuñez | [#9](https://github.com/adzeveck/TPGrupalOO2Hito2Grupo12/pull/9) |
+| CU propio: baja lógica y reactivación de un plato (`/responsable/platos`) | Bautista Nuñez | [#9](https://github.com/adzeveck/TPGrupalOO2Hito2Grupo12/pull/9) |
 | Reporte de recaudación y ranking de unidades por recaudación (`/responsable/recaudacion`, `/admin/recaudacion`) | Agustín Dzevecka | [#11](https://github.com/adzeveck/TPGrupalOO2Hito2Grupo12/pull/11) |
 | Cierre de caja del cajero (`/empleado/pedidos/cierre`) | Agustín Dzevecka | [#12](https://github.com/adzeveck/TPGrupalOO2Hito2Grupo12/pull/12) |
 | CU propio: recaudación de la unidad por día (`/responsable/recaudacion/diaria`) | Agustín Dzevecka | [#13](https://github.com/adzeveck/TPGrupalOO2Hito2Grupo12/pull/13) |
