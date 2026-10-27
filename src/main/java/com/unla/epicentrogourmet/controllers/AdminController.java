@@ -95,4 +95,29 @@ public class AdminController {
 		}
 		return modelAndView;
 	}
+
+	// Ranking de unidades de un festival por recaudación, con el total del festival
+	@GetMapping("/recaudacion")
+	public ModelAndView rankingRecaudacion(@RequestParam(required = false) Integer festivalId) {
+		ModelAndView modelAndView = new ModelAndView(ViewRouteHelper.ADMIN_RECAUDACION);
+		List<Festival> festivales = festivalService.getAllWithUnidades();
+
+		// Igual que en el ranking por canon: sin festival elegido se muestra el primero
+		Integer elegido = festivalId;
+		if (elegido == null && !festivales.isEmpty()) {
+			elegido = festivales.get(0).getId();
+		}
+
+		modelAndView.addObject("festivales", festivales);
+		modelAndView.addObject("festivalId", elegido);
+		if (elegido != null) {
+			try {
+				modelAndView.addObject("ranking", reporteService.getRankingRecaudacion(elegido));
+				modelAndView.addObject("total", reporteService.getRecaudacionTotal(elegido));
+			} catch (ValidacionException e) {
+				modelAndView.addObject("errorGeneral", e.getMessage());
+			}
+		}
+		return modelAndView;
+	}
 }

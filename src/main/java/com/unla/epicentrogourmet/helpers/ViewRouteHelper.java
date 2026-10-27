@@ -13,11 +13,15 @@ public class ViewRouteHelper {
 	public final static String ADMIN_FESTIVALES = "admin/festivales";
 	public final static String ADMIN_FESTIVAL_UNIDADES = "admin/festival-unidades";
 	public final static String ADMIN_CANON = "admin/canon";
+	public final static String ADMIN_RECAUDACION = "admin/recaudacion";
 
 	//RESPONSABLE
 	public final static String RESPONSABLE_INDEX = "responsable/index";
 	public final static String RESPONSABLE_CANON = "responsable/canon";
 	public final static String RESPONSABLE_PLATO_ESTRELLA = "responsable/plato-estrella";
+	public final static String RESPONSABLE_RECAUDACION = "responsable/recaudacion";
+	public final static String RESPONSABLE_RECAUDACION_DIARIA = "responsable/recaudacion-diaria";
+	public final static String RESPONSABLE_RENTABILIDAD = "responsable/rentabilidad";
 	public final static String PLATO_LIST = "responsable/platos";
 	public final static String PLATO_FORM = "responsable/plato-form";
 	public final static String EMPLEADO_LIST = "responsable/empleados";
@@ -27,6 +31,7 @@ public class ViewRouteHelper {
 	public final static String EMPLEADO_INDEX = "empleado/index";
 	public final static String PEDIDO_FORM = "empleado/pedido-form";
 	public final static String PEDIDO_LIST = "empleado/pedidos";
+	public final static String CIERRE_CAJA = "empleado/cierre-caja";
 	public final static String SUELDO = "empleado/sueldo";
 
 	//REGISTRO

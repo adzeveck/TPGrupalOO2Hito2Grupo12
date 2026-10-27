@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head}"></head>
+<body>
+<nav th:replace="~{layout :: navbar}"></nav>
+
+<main class="container py-4">
+    <h1 class="mb-1">Recaudación por día</h1>
+    <p class="text-muted mb-4">Lo que vendió tu unidad cada día del festival.</p>
+
+    <div th:if="${errorGeneral != null}">
+        <div class="alert alert-warning" th:text="${errorGeneral}">Mensaje</div>
+        <a class="btn btn-secondary" th:href="@{/responsable/index}">Volver al panel</a>
+    </div>
+
+    <div th:if="${dias != null}">
+        <p class="text-muted mb-3">
+            <span th:text="${unidad.nombreComercial}">Unidad</span> ·
+            <span th:text="${festival.nombre}">Festival</span>
+            (<span th:text="${#temporals.format(festival.fechaInicio, 'dd/MM/yyyy')}">01/10/2026</span> al
+            <span th:text="${#temporals.format(festival.fechaFin, 'dd/MM/yyyy')}">15/11/2026</span>)
+        </p>
+
+        <p class="text-muted" th:if="${#lists.isEmpty(dias)}">Tu unidad todavía no tiene pedidos cargados.</p>
+
+        <div class="card" th:unless="${#lists.isEmpty(dias)}">
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead>
+                        <tr>
+                            <th>Día</th>
+                            <th class="text-right">Pedidos</th>
+                            <th class="text-right">Recaudación</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="dia : ${dias}">
+                            <td th:text="${#temporals.format(dia.fecha, 'dd/MM/yyyy')}">01/10/2026</td>
+                            <td class="text-right" th:text="${dia.cantidadPedidos}">0</td>
+                            <td class="text-right"
+                                th:text="'$ ' + ${#numbers.formatDecimal(dia.recaudacion, 1, 'POINT', 2, 'COMMA')}">$ 0,00</td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th th:text="${#lists.size(dias)} + ' días con ventas'">Días</th>
+                            <th class="text-right" th:text="${#aggregates.sum(dias.![cantidadPedidos])}">0</th>
+                            <th class="text-right"
+                                th:text="'$ ' + ${#numbers.formatDecimal(#aggregates.sum(dias.![recaudacion]), 1, 'POINT', 2, 'COMMA')}">$ 0,00</th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <a class="btn btn-link px-0 mt-3" th:href="@{/responsable/index}">Volver al panel</a>
+</main>
+
+<footer th:replace="~{layout :: footer}"></footer>
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>

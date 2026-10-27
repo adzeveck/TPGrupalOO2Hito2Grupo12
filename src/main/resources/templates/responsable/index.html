@@ -2,56 +2,43 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head th:replace="~{layout :: head}"></head>
 <body>
-<nav th:replace="~{layout :: navbar}"></nav>
+    <nav th:replace="~{layout :: navbar}"></nav>
 
-<main class="container py-4">
-    <div class="page-header mb-4">
-        <h2>Mi unidad de venta</h2>
-        <p class="text-muted mb-0">Sesión iniciada como <strong sec:authentication="name">usuario</strong></p>
-    </div>
+    <main class="container py-4">
+        <div class="page-header mb-4">
+            <h2>Mi unidad de venta</h2>
+            <p class="text-muted mb-0">Sesión iniciada como <strong sec:authentication="name">usuario</strong></p>
+        </div>
 
-    <div class="card">
-        <div class="card-header">Acciones del responsable</div>
-        <div class="list-group list-group-flush">
-            <a class="list-group-item list-group-item-action" th:href="@{/responsable/platos}">
-                Mis platos: alta, modificación y baja
-            </a>
-            <a class="list-group-item list-group-item-action" th:href="@{/responsable/canon}">
-                Canon de la unidad
-            </a>
-            <a class="list-group-item list-group-item-action" th:href="@{/responsable/plato-estrella}">
-                Plato estrella
-            </a>
-            <a class="list-group-item list-group-item-action" th:href="@{/responsable/empleados}">
-                Empleados: alta, modificación, baja, reactivación y filtros
-            </a>
-            <span class="list-group-item text-muted">
+        <div class="card">
+            <div class="card-header">Acciones del responsable</div>
+            <div class="list-group list-group-flush">
+                <a class="list-group-item list-group-item-action" th:href="@{/responsable/platos}">
+                    Mis platos: alta, modificación y baja
+                </a>
+                <a class="list-group-item list-group-item-action" th:href="@{/responsable/canon}">
+                    Canon de la unidad
+                </a>
+                <a class="list-group-item list-group-item-action" th:href="@{/responsable/plato-estrella}">
+                    Plato estrella
+                </a>
+                <span class="list-group-item text-muted">
+                    Empleados: alta, baja, modificación y filtros <span class="badge badge-secondary">Pendiente</span>
+                </span>
+                <span class="list-group-item text-muted">
                     Liquidación de haberes <span class="badge badge-secondary">Pendiente</span>
                 </span>
-            <span class="list-group-item text-muted">
+                <span class="list-group-item text-muted">
                     Reporte de recaudación <span class="badge badge-secondary">Pendiente</span>
                 </span>
-            <span class="list-group-item text-muted">
+                <span class="list-group-item text-muted">
                     Rentabilidad neta (total y entre dos fechas) <span class="badge badge-secondary">Pendiente</span>
                 </span>
+            </div>
         </div>
-    </div>
+    </main>
 
-    <div class="card mb-3">
-        <div class="card-body">
-            <h5 class="card-title">Prueba de correo electrónico</h5>
-            <p class="card-text">
-                Comprobá el envío de correos desde la aplicación.
-            </p>
-
-            <a th:href="@{/responsable/emailTest}" class="btn btn-primary">
-                Probar envío de correo
-            </a>
-        </div>
-    </div>
-</main>
-
-<footer th:replace="~{layout :: footer}"></footer>
-<div th:replace="~{layout :: scripts}"></div>
+    <footer th:replace="~{layout :: footer}"></footer>
+    <div th:replace="~{layout :: scripts}"></div>
 </body>
 </html>

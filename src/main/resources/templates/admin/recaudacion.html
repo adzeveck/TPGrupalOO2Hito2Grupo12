@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head}"></head>
+<body>
+<nav th:replace="~{layout :: navbar}"></nav>
+
+<main class="container py-4">
+    <h1 class="mb-1">Ranking por recaudación</h1>
+    <p class="text-muted mb-4">Unidades de un festival ordenadas por lo que vendieron, de mayor a menor.</p>
+
+    <p class="alert alert-info" th:if="${#lists.isEmpty(festivales)}">
+        Todavía no hay festivales cargados.
+    </p>
+
+    <form class="card card-body mb-4" method="get" th:action="@{/admin/recaudacion}" th:if="${!#lists.isEmpty(festivales)}">
+        <div class="form-row align-items-end">
+            <div class="form-group col-md-10 mb-md-0">
+                <label for="festivalId">Festival</label>
+                <select class="form-control" id="festivalId" name="festivalId">
+                    <option th:each="festival : ${festivales}" th:value="${festival.id}"
+                            th:selected="${festivalId != null and festival.id == festivalId}"
+                            th:text="|${festival.nombre} (${festival.temporada})|">Festival</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary btn-block">Ver ranking</button>
+            </div>
+        </div>
+    </form>
+
+    <div class="alert alert-warning" th:if="${errorGeneral != null}" th:text="${errorGeneral}">Mensaje</div>
+
+    <div th:if="${ranking != null}">
+        <p class="text-muted" th:if="${#lists.isEmpty(ranking)}">El festival no tiene unidades de venta.</p>
+
+        <div class="card" th:unless="${#lists.isEmpty(ranking)}">
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Nombre comercial</th>
+                            <th>Código</th>
+                            <th class="text-right">Pedidos</th>
+                            <th class="text-right">Recaudación</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="unidad, st : ${ranking}">
+                            <td th:text="${st.count}">1</td>
+                            <td th:text="${unidad.nombreComercial}">Unidad</td>
+                            <td th:text="${unidad.codigo}">FT00000001</td>
+                            <td class="text-right" th:text="${unidad.cantidadPedidos}">0</td>
+                            <td class="text-right"
+                                th:text="'$ ' + ${#numbers.formatDecimal(unidad.recaudacion, 1, 'POINT', 2, 'COMMA')}">$ 0,00</td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th colspan="4">Recaudación total del festival</th>
+                            <th class="text-right"
+                                th:text="'$ ' + ${#numbers.formatDecimal(total, 1, 'POINT', 2, 'COMMA')}">$ 0,00</th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <a class="btn btn-link px-0 mt-3" th:href="@{/admin/index}">Volver al panel</a>
+</main>
+
+<footer th:replace="~{layout :: footer}"></footer>
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>

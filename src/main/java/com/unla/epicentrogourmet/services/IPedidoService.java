@@ -2,6 +2,7 @@ package com.unla.epicentrogourmet.services;
 
 import java.util.List;
 
+import com.unla.epicentrogourmet.dtos.CierreCajaDTO;
 import com.unla.epicentrogourmet.dtos.PedidoDTO;
 import com.unla.epicentrogourmet.entities.Pedido;
 import com.unla.epicentrogourmet.entities.UnidadDeVenta;
@@ -23,4 +24,10 @@ public interface IPedidoService {
 
 	// Los pedidos de hoy de la unidad del cajero
 	List<Pedido> getPedidosDeHoy(String username);
+
+	// Cierre de caja: cantidad de pedidos, total y unidades por plato de hoy
+	CierreCajaDTO getCierreDeCaja(String username);
+
+	// Borra un pedido de hoy de la unidad del cajero, para corregir un error de carga
+	void anular(String username, Integer pedidoId);
 }
