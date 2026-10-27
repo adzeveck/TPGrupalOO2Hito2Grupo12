@@ -8,6 +8,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -33,15 +34,37 @@ public class PedidoController {
 		this.pedidoService = pedidoService;
 	}
 
-	// GET /empleado/pedidos: los pedidos de hoy de la unidad, con el aviso del que se acaba de crear
+	// GET /empleado/pedidos: los pedidos de hoy de la unidad, con el aviso del que se acaba de crear o anular
 	@GetMapping
-	public ModelAndView pedidosDeHoy(Authentication authentication, @RequestParam(required = false) Integer creado) {
+	public ModelAndView pedidosDeHoy(Authentication authentication, @RequestParam(required = false) Integer creado,
+			@RequestParam(required = false) Integer anulado) {
+		ModelAndView modelAndView = listaDeHoy(authentication);
+		modelAndView.addObject("creado", creado);
+		modelAndView.addObject("anulado", anulado);
+		return modelAndView;
+	}
+
+	// POST /empleado/pedidos/{id}/anular: borra un pedido de hoy cargado por error
+	@PostMapping("/{id}/anular")
+	public ModelAndView anular(Authentication authentication, @PathVariable Integer id) {
+		try {
+			pedidoService.anular(authentication.getName(), id);
+			// Redirect (POST-Redirect-GET): un F5 no vuelve a intentar la anulación
+			return new ModelAndView("redirect:" + ViewRouteHelper.PEDIDOS_ROOT + "?anulado=" + id);
+		} catch (ValidacionException e) {
+			// El pedido no es de su unidad o no es de hoy: se queda en el listado con el aviso
+			ModelAndView modelAndView = listaDeHoy(authentication);
+			modelAndView.addObject("errorAnular", e.getMessage());
+			return modelAndView;
+		}
+	}
+
+	private ModelAndView listaDeHoy(Authentication authentication) {
 		ModelAndView modelAndView = new ModelAndView(ViewRouteHelper.PEDIDO_LIST);
 		modelAndView.addObject("hoy", LocalDate.now());
 		try {
 			modelAndView.addObject("unidad", pedidoService.getUnidadDelCajero(authentication.getName()));
 			modelAndView.addObject("pedidos", pedidoService.getPedidosDeHoy(authentication.getName()));
-			modelAndView.addObject("creado", creado);
 		} catch (ValidacionException e) {
 			modelAndView.addObject("errorGeneral", e.getMessage());
 		}
