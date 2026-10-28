@@ -43,8 +43,11 @@
             <div class="form-group col-md-6">
                 <label for="fechaNacimiento">Fecha de nacimiento</label>
                 <input class="form-control" id="fechaNacimiento" type="date" th:field="*{fechaNacimiento}"
-                       th:classappend="${#fields.hasErrors('fechaNacimiento')} ? 'is-invalid'">
+                       th:classappend="${#fields.hasErrors('fechaNacimiento') or #fields.hasErrors('mayorDeEdad')} ? 'is-invalid'">
                 <small class="text-danger" th:errors="*{fechaNacimiento}"></small>
+                <small class="text-danger" th:if="${#fields.hasErrors('mayorDeEdad')}"
+                       th:errors="*{mayorDeEdad}"></small>
+
             </div>
 
             <div class="form-group col-md-6">
