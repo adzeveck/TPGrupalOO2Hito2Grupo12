@@ -15,6 +15,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
 @Getter @Setter @NoArgsConstructor
 public class EmpleadoFormDTO {
@@ -35,6 +36,7 @@ public class EmpleadoFormDTO {
 
     @NotNull(message = "La fecha de nacimiento es obligatoria")
     @Past(message = "La fecha de nacimiento debe ser anterior a hoy")
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate fechaNacimiento;
 
     @NotBlank(message = "El correo es obligatorio")
@@ -63,5 +65,11 @@ public class EmpleadoFormDTO {
     @AssertTrue(message = "El tipo de empleado debe ser cocinero o cajero")
     public boolean isTipoEmpleadoValido() {
         return "COCINERO".equals(tipoEmpleado) || "CAJERO".equals(tipoEmpleado);
+    }
+
+    @AssertTrue(message = "El empleado tiene que ser mayor de edad")
+    public boolean isMayorDeEdad() {
+        return fechaNacimiento == null
+                || !fechaNacimiento.plusYears(18).isAfter(LocalDate.now());
     }
 }

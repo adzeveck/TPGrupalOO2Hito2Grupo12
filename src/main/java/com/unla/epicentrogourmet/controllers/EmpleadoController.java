@@ -1,5 +1,7 @@
 package com.unla.epicentrogourmet.controllers;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -21,6 +23,7 @@ import jakarta.validation.Valid;
 
 @Controller
 public class EmpleadoController {
+	private static final Logger log = LoggerFactory.getLogger(EmpleadoController.class);
 
 	private final IPedidoService pedidoService;
 	private final IEmpleadoService empleadoService;
@@ -112,6 +115,7 @@ public class EmpleadoController {
 			bindingResult.rejectValue(e.getCampo(), "error.empleado", e.getMessage());
 			return formConDatos(empleado, false);
 		} catch (org.springframework.mail.MailException e) {
+			log.error("Error al enviar las credenciales del empleado", e);
 			bindingResult.reject(
 					"error.email",
 					"No se pudo enviar el correo. Revisá la configuración SMTP.");
