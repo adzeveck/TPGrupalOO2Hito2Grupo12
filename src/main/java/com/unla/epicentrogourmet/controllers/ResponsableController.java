@@ -2,21 +2,17 @@ package com.unla.epicentrogourmet.controllers;
 
 import java.time.LocalDate;
 
-import com.unla.epicentrogourmet.services.IEmpleadoService;
-import jakarta.validation.Valid;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.unla.epicentrogourmet.entities.FoodTruck;
 import com.unla.epicentrogourmet.entities.UnidadDeVenta;
-import com.unla.epicentrogourmet.dtos.EmpleadoFormDTO;
-import com.unla.epicentrogourmet.enums.CategoriaCocina;
-import com.unla.epicentrogourmet.enums.Turno;
 import com.unla.epicentrogourmet.exceptions.ValidacionException;
 import com.unla.epicentrogourmet.helpers.ViewRouteHelper;
 import com.unla.epicentrogourmet.services.IRentabilidadService;
@@ -33,15 +29,11 @@ public class ResponsableController {
 	private final IRentabilidadService rentabilidadService;
 
 	public ResponsableController(IUnidadDeVentaService unidadDeVentaService, IReporteService reporteService,
-                                 IRentabilidadService rentabilidadService) {
+			IRentabilidadService rentabilidadService) {
 		this.unidadDeVentaService = unidadDeVentaService;
 		this.reporteService = reporteService;
 		this.rentabilidadService = rentabilidadService;
-
-    }
-
-
-
+	}
 
 	@GetMapping("/index")
 	public ModelAndView index() {
@@ -95,8 +87,8 @@ public class ResponsableController {
 	// Rentabilidad neta: sin fechas, el festival completo; con fechas, ese período
 	@GetMapping("/rentabilidad")
 	public ModelAndView rentabilidad(Authentication authentication,
-									 @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate desde,
-									 @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate hasta) {
+			@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate desde,
+			@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate hasta) {
 		ModelAndView modelAndView = new ModelAndView(ViewRouteHelper.RESPONSABLE_RENTABILIDAD);
 		try {
 			// El festival se pasa siempre: el formulario usa sus fechas como límites
@@ -124,8 +116,4 @@ public class ResponsableController {
 		}
 		return modelAndView;
 	}
-
-
-
-	}
-
+}

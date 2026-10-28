@@ -24,8 +24,6 @@ public class ViewRouteHelper {
 	public final static String RESPONSABLE_RENTABILIDAD = "responsable/rentabilidad";
 	public final static String PLATO_LIST = "responsable/platos";
 	public final static String PLATO_FORM = "responsable/plato-form";
-	public final static String EMPLEADO_LIST = "responsable/empleados";
-	public final static String EMPLEADO_FORM = "responsable/empleadoForm";
 
 	//EMPLEADO
 	public final static String EMPLEADO_INDEX = "empleado/index";
@@ -38,18 +36,16 @@ public class ViewRouteHelper {
 	public final static String REGISTRO_FORM = "registro/form";
 
 	//PRUEBA EMAIL
-	public final static String EMAIL_TEST_FORM = "responsable/emailTest";
+	public final static String EMAIL_TEST_FORM = "admin/emailTest";
 
 	/**** Redirects ****/
 	public final static String ROUTE = "/index";
 	public final static String ADMIN_ROOT = "/admin/index";
 	public final static String RESPONSABLE_ROOT = "/responsable/index";
 	public final static String PLATOS_ROOT = "/responsable/platos";
-	public final static String EMPLEADOS_ROOT = "/responsable/empleados";
 	public final static String EMPLEADO_ROOT = "/empleado/index";
 	public final static String PEDIDOS_ROOT = "/empleado/pedidos";
 	public final static String LOGIN_REGISTRADO = "/login?registrado";
-	public final static String EMAIL_TEST_ROOT = "/responsable/emailTest";
-
+	public final static String EMAIL_TEST_ROOT = "/admin/emailTest";
 
 }
