@@ -198,21 +198,14 @@ public class EmpleadoService implements IEmpleadoService {
         }
     }
     private void validarDniDisponible(String dni, Integer empleadoIdActual) {
-        personalRepository.findByDni(dni).ifPresent(otro -> {
-            if (empleadoIdActual == null || !otro.getId().equals(empleadoIdActual)) {
+        java.util.Optional<Personal> empleadoExistente = personalRepository.findByDni(dni);
+        if (empleadoExistente.isPresent()) {
+            Integer idExistente = empleadoExistente.get().getId();
+            if (empleadoIdActual == null || !idExistente.equals(empleadoIdActual)) {
                 throw new ValidacionException("dni", "Ya existe un empleado con ese DNI");
             }
-        });
-    }
-    /*private void validarDniDisponible(String dni, Integer empleadoIdActual) {
-        var empleadoExistente = personalRepository.findByDni(dni);
-
-        if (empleadoExistente.isPresent()
-                && (empleadoIdActual == null
-                || !empleadoExistente.get().getId().equals(empleadoIdActual))) {
-            throw new ValidacionException("dni", "Ya existe un empleado con ese DNI");
         }
-    }*/
+    }
 
     private String generarClaveTemporal() {
         byte[] bytes = new byte[12];

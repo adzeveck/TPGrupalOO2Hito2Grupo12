@@ -13,7 +13,6 @@
     <form class="card card-body mb-4" novalidate th:object="${empleado}"
           th:action="${edicion} ? @{/responsable/empleados/{id}(id=${empleado.id})} : @{/responsable/empleados}"
           method="post">
-        <input type="hidden" th:if="${edicion}" th:field="*{empleados.id}">
 
         <div class="alert alert-danger" th:if="${#fields.hasGlobalErrors()}">
             <p class="mb-0" th:each="err : ${#fields.globalErrors()}" th:text="${err}"></p>
