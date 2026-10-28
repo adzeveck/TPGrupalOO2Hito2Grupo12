@@ -1,0 +1,62 @@
+
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{layout :: head}"></head>
+
+<body>
+<nav th:replace="~{layout :: navbar}"></nav>
+
+<main class="container py-4">
+    <h2 class="mb-3">Prueba de envío de correo</h2>
+
+    <p class="text-muted">
+        Esta herramienta permite comprobar el envío de correos
+        desde Epicentro Gourmet.
+    </p>
+
+    <div th:if="${mensajeExito}"
+         class="alert alert-success"
+         role="alert"
+         th:text="${mensajeExito}">
+    </div>
+
+    <div th:if="${mensajeError}"
+         class="alert alert-danger"
+         role="alert"
+         th:text="${mensajeError}">
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            Enviar correo de prueba
+        </div>
+
+        <form th:action="@{/responsable/emailTest}" method="post" class="card-body">
+            <div class="mb-3">
+                <label for="destinatario" class="form-label">
+                    Correo electrónico destinatario
+                </label>
+
+                <input
+                        type="email"
+                        class="form-control"
+                        id="destinatario"
+                        name="destinatario"
+                        th:value="${destinatario}"
+                        placeholder="destinatario@gmail.com"
+                        required>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                Enviar correo
+            </button>
+        </form>
+    </div>
+</main>
+
+<footer th:replace="~{layout :: footer}"></footer>
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+
+</html>

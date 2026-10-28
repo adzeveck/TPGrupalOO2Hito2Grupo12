@@ -22,12 +22,9 @@
                 <a class="list-group-item list-group-item-action" th:href="@{/responsable/plato-estrella}">
                     Plato estrella
                 </a>
-                <span class="list-group-item text-muted">
-                    Empleados: alta, baja, modificación y filtros <span class="badge badge-secondary">Pendiente</span>
-                </span>
-                <span class="list-group-item text-muted">
-                    Liquidación de haberes <span class="badge badge-secondary">Pendiente</span>
-                </span>
+                <a class="list-group-item list-group-item-action" th:href="@{/responsable/empleados}">
+                    Empleados: alta, modificación, baja, reactivación y filtros
+                </a>
                 <a class="list-group-item list-group-item-action" th:href="@{/responsable/recaudacion}">
                     Reporte de recaudación
                 </a>
@@ -36,6 +33,18 @@
                 </a>
                 <a class="list-group-item list-group-item-action" th:href="@{/responsable/rentabilidad}">
                     Rentabilidad neta (total y entre dos fechas)
+                </a>
+            </div>
+        </div>
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Prueba de correo electrónico</h5>
+                <p class="card-text">
+                    Comprobá el envío de correos desde la aplicación.
+                </p>
+
+                <a th:href="@{/responsable/emailTest}" class="btn btn-primary">
+                    Probar envío de correo
                 </a>
             </div>
         </div>

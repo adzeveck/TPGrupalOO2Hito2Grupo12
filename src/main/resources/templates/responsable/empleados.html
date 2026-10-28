@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head}"></head>
+<body>
+<nav th:replace="~{layout :: navbar}"></nav>
+
+<main class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-1">
+        <h1 class="mb-0">Personal de mi unidad</h1>
+        <a class="btn btn-primary" th:href="@{/responsable/empleados/nuevo}">Dar de alta empleado</a>
+    </div>
+    <p class="text-muted mb-4">Los filtros buscan únicamente entre empleados activos de tu unidad.</p>
+
+    <div class="alert alert-success" th:if="${guardado}">
+        Los datos del empleado se guardaron correctamente.
+    </div>
+    <div class="alert alert-success" th:if="${estado == 'baja'}">
+        Empleado dado de baja lógicamente.
+    </div>
+    <div class="alert alert-success" th:if="${estado == 'reactivado'}">
+        Empleado reactivado.
+    </div>
+    <div class="alert alert-warning" th:if="${errorGeneral != null}" th:text="${errorGeneral}"></div>
+
+    <form class="card card-body mb-4" method="get" th:action="@{/responsable/empleados}">
+        <h5>Filtrar empleados activos</h5>
+
+        <div class="form-row">
+            <div class="form-group col-md-4">
+                <label for="nombre">Nombre</label>
+                <input class="form-control" id="nombre" name="nombre" th:value="${nombre}">
+            </div>
+            <div class="form-group col-md-4">
+                <label for="apellido">Apellido</label>
+                <input class="form-control" id="apellido" name="apellido" th:value="${apellido}">
+            </div>
+            <div class="form-group col-md-4">
+                <label for="dni">DNI</label>
+                <input class="form-control" id="dni" name="dni" th:value="${dni}">
+            </div>
+            <div class="form-group col-md-6">
+                <label for="email">Correo</label>
+                <input class="form-control" id="email" name="email" type="email" th:value="${email}">
+            </div>
+            <div class="form-group col-md-6">
+                <label for="tipo">Tipo</label>
+                <select class="form-control" id="tipo" name="tipo">
+                    <option value="">Todos</option>
+                    <option value="COCINERO" th:selected="${tipo == 'COCINERO'}">Cocinero</option>
+                    <option value="CAJERO" th:selected="${tipo == 'CAJERO'}">Cajero</option>
+                </select>
+            </div>
+        </div>
+
+        <div>
+            <button class="btn btn-primary" type="submit">Filtrar</button>
+            <a class="btn btn-outline-secondary" th:href="@{/responsable/empleados}">Limpiar</a>
+        </div>
+    </form>
+
+    <div class="card mb-4">
+        <div class="card-header">Empleados activos</div>
+        <div class="table-responsive">
+            <table class="table mb-0">
+                <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    <th>DNI</th>
+                    <th>Correo</th>
+                    <th>Tipo</th>
+                    <th>Detalle</th>
+                    <th>Acciones</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:if="${#lists.isEmpty(empleados)}">
+                    <td colspan="7" class="text-muted">No hay empleados activos que coincidan con los filtros.</td>
+                </tr>
+                <tr th:each="persona : ${empleados}">
+                    <td th:text="${persona.nombre}">Nombre</td>
+                    <td th:text="${persona.apellido}">Apellido</td>
+                    <td th:text="${persona.dni}">DNI</td>
+                    <td th:text="${persona.usuario.username}">correo</td>
+                    <td th:text="${persona.tipoEmpleado == 'COCINERO'} ? 'Cocinero' : 'Cajero'">Tipo</td>
+                    <td th:text="${persona.detalleEmpleado}">Detalle</td>
+                    <td class="text-nowrap">
+                        <a class="btn btn-sm btn-outline-secondary"
+                           th:href="@{/responsable/empleados/{id}/editar(id=${persona.id})}">Editar</a>
+                        <form class="d-inline" method="post"
+                              th:action="@{/responsable/empleados/{id}/estado(id=${persona.id})}">
+                            <button class="btn btn-sm btn-outline-danger" type="submit">Dar de baja</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <details class="card mb-4">
+        <summary class="card-header">Empleados dados de baja (reactivar)</summary>
+        <div class="table-responsive">
+            <table class="table mb-0">
+                <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    <th>DNI</th>
+                    <th>Correo</th>
+                    <th>Acción</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="persona : ${todosLosEmpleados}" th:unless="${persona.usuario.enabled}">
+                    <td th:text="${persona.nombre}">Nombre</td>
+                    <td th:text="${persona.apellido}">Apellido</td>
+                    <td th:text="${persona.dni}">DNI</td>
+                    <td th:text="${persona.usuario.username}">correo</td>
+                    <td>
+                        <form method="post" th:action="@{/responsable/empleados/{id}/estado(id=${persona.id})}">
+                            <button class="btn btn-sm btn-outline-success" type="submit">Reactivar</button>
+                        </form>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(todosLosEmpleados)}">
+                    <td colspan="5" class="text-muted">Todavía no hay empleados registrados.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </details>
+
+    <a class="btn btn-link px-0" th:href="@{/responsable/index}">Volver al panel</a>
+</main>
+
+<footer th:replace="~{layout :: footer}"></footer>
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>

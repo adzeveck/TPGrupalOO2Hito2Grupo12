@@ -14,10 +14,10 @@ import org.springframework.web.servlet.ModelAndView;
 import com.unla.epicentrogourmet.helpers.ViewRouteHelper;
 import com.unla.epicentrogourmet.services.IEmailService;
 
-// Prueba de envío de e-mail: el admin escribe un destinatario y el sistema le manda un correo fijo
+// Prueba de envío de e-mail: el responsable escribe un destinatario y el sistema le manda un correo fijo
 @Controller
-@RequestMapping("/admin/emailTest")
-@PreAuthorize("hasRole('ADMIN')")
+@RequestMapping("/responsable/emailTest")
+@PreAuthorize("hasRole('RESPONSABLE')")
 public class EmailController {
 
 	private static final Logger log = LoggerFactory.getLogger(EmailController.class);
@@ -28,7 +28,7 @@ public class EmailController {
 		this.emailService = emailService;
 	}
 
-	// GET /admin/emailTest (con ?enviado después de un envío exitoso)
+	// GET /responsable/emailTest (con ?enviado después de un envío exitoso)
 	@GetMapping
 	public ModelAndView mostrarFormulario(@RequestParam(value = "enviado", required = false) String enviado) {
 		ModelAndView modelAndView = new ModelAndView(ViewRouteHelper.EMAIL_TEST_FORM);
@@ -38,7 +38,7 @@ public class EmailController {
 		return modelAndView;
 	}
 
-	// POST /admin/emailTest
+	// POST /responsable/emailTest
 	@PostMapping
 	public ModelAndView enviarCorreo(@RequestParam("destinatario") String destinatario) {
 		try {

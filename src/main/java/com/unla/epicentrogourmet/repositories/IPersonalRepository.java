@@ -14,8 +14,16 @@ public interface IPersonalRepository extends JpaRepository<Personal, Integer> {
 
 	boolean existsByDni(String dni);
 
-	Optional<Personal> findByUsuarioUsername(String username);
+	Optional<Personal> findByDni(String dni);
 
+	Optional<Personal> findByUsuarioUsername(String username);
 	// El personal activo de una unidad: los dados de baja (usuario.enabled = false) no cobran
+
 	List<Personal> findByUnidadIdAndUsuarioEnabledTrue(Integer unidadId);
+
+	Optional<Personal> findByIdAndUnidadId(Integer id, Integer unidadId);
+
+	java.util.List<Personal> findByUnidadIdAndUsuarioEnabledTrueOrderByApellidoAscNombreAsc(Integer unidadId);
+
+	java.util.List<Personal> findByUnidadIdOrderByApellidoAscNombreAsc(Integer unidadId);
 }
