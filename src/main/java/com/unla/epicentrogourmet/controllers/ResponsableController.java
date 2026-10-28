@@ -28,8 +28,9 @@ public class ResponsableController {
 	private final IReporteService reporteService;
 	private final IRentabilidadService rentabilidadService;
 
-	public ResponsableController(IUnidadDeVentaService unidadDeVentaService, IReporteService reporteService,
-			IRentabilidadService rentabilidadService) {
+	public ResponsableController(IUnidadDeVentaService unidadDeVentaService,
+								 IReporteService reporteService,
+								 IRentabilidadService rentabilidadService) {
 		this.unidadDeVentaService = unidadDeVentaService;
 		this.reporteService = reporteService;
 		this.rentabilidadService = rentabilidadService;
@@ -40,7 +41,7 @@ public class ResponsableController {
 		return new ModelAndView(ViewRouteHelper.RESPONSABLE_INDEX);
 	}
 
-	// Canon de la unidad del responsable logueado. La fórmula la resuelve la propia unidad
+	// Canon de la unidad del responsable logueado. La fórmula la resuelve la propia unidad.
 	@GetMapping("/canon")
 	public ModelAndView canon(Authentication authentication) {
 		ModelAndView modelAndView = new ModelAndView(ViewRouteHelper.RESPONSABLE_CANON);
@@ -49,7 +50,6 @@ public class ResponsableController {
 			modelAndView.addObject("unidad", unidad);
 			modelAndView.addObject("festival", unidad.getFestival());
 			modelAndView.addObject("canon", unidadDeVentaService.calcularCanon(authentication.getName()));
-			// La vista muestra la fórmula que corresponde al tipo de unidad
 			modelAndView.addObject("esFoodTruck", unidad instanceof FoodTruck);
 		} catch (ValidacionException e) {
 			modelAndView.addObject("errorGeneral", e.getMessage());
@@ -57,7 +57,7 @@ public class ResponsableController {
 		return modelAndView;
 	}
 
-	// Plato estrella: el más pedido de la unidad del responsable
+	// Plato estrella: el más pedido de la unidad del responsable.
 	@GetMapping("/plato-estrella")
 	public ModelAndView platoEstrella(Authentication authentication) {
 		ModelAndView modelAndView = new ModelAndView(ViewRouteHelper.RESPONSABLE_PLATO_ESTRELLA);
@@ -69,48 +69,55 @@ public class ResponsableController {
 		return modelAndView;
 	}
 
-	// Recaudación de la unidad del responsable en su festival, y el total del festival como referencia
+	// Recaudación de la unidad del responsable en su festival, y total del festival como referencia.
 	@GetMapping("/recaudacion")
 	public ModelAndView recaudacion(Authentication authentication) {
 		ModelAndView modelAndView = new ModelAndView(ViewRouteHelper.RESPONSABLE_RECAUDACION);
 		try {
 			UnidadDeVenta unidad = unidadDeVentaService.getDelResponsable(authentication.getName());
 			modelAndView.addObject("festival", unidad.getFestival());
-			modelAndView.addObject("reporte", reporteService.getRecaudacionDeMiUnidad(authentication.getName()));
-			modelAndView.addObject("totalFestival", reporteService.getRecaudacionTotal(unidad.getFestival().getId()));
+			modelAndView.addObject("reporte",
+					reporteService.getRecaudacionDeMiUnidad(authentication.getName()));
+			modelAndView.addObject("totalFestival",
+					reporteService.getRecaudacionTotal(unidad.getFestival().getId()));
 		} catch (ValidacionException e) {
 			modelAndView.addObject("errorGeneral", e.getMessage());
 		}
 		return modelAndView;
 	}
 
-	// Rentabilidad neta: sin fechas, el festival completo; con fechas, ese período
+	// Rentabilidad neta: festival completo o período seleccionado.
 	@GetMapping("/rentabilidad")
 	public ModelAndView rentabilidad(Authentication authentication,
-			@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate desde,
-			@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate hasta) {
+									 @RequestParam(required = false)
+									 @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate desde,
+									 @RequestParam(required = false)
+									 @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate hasta) {
 		ModelAndView modelAndView = new ModelAndView(ViewRouteHelper.RESPONSABLE_RENTABILIDAD);
 		try {
-			// El festival se pasa siempre: el formulario usa sus fechas como límites
-			modelAndView.addObject("festival", unidadDeVentaService.getDelResponsable(authentication.getName()).getFestival());
+			modelAndView.addObject("festival",
+					unidadDeVentaService.getDelResponsable(authentication.getName()).getFestival());
 			modelAndView.addObject("desde", desde);
 			modelAndView.addObject("hasta", hasta);
-			modelAndView.addObject("rentabilidad", rentabilidadService.calcular(authentication.getName(), desde, hasta));
+			modelAndView.addObject("rentabilidad",
+					rentabilidadService.calcular(authentication.getName(), desde, hasta));
 		} catch (ValidacionException e) {
 			modelAndView.addObject("errorGeneral", e.getMessage());
 		}
 		return modelAndView;
 	}
 
-	// Recaudación de la unidad del responsable día por día
+	// Recaudación de la unidad del responsable día por día.
 	@GetMapping("/recaudacion/diaria")
 	public ModelAndView recaudacionDiaria(Authentication authentication) {
-		ModelAndView modelAndView = new ModelAndView(ViewRouteHelper.RESPONSABLE_RECAUDACION_DIARIA);
+		ModelAndView modelAndView =
+				new ModelAndView(ViewRouteHelper.RESPONSABLE_RECAUDACION_DIARIA);
 		try {
 			UnidadDeVenta unidad = unidadDeVentaService.getDelResponsable(authentication.getName());
 			modelAndView.addObject("unidad", unidad);
 			modelAndView.addObject("festival", unidad.getFestival());
-			modelAndView.addObject("dias", reporteService.getRecaudacionDiaria(authentication.getName()));
+			modelAndView.addObject("dias",
+					reporteService.getRecaudacionDiaria(authentication.getName()));
 		} catch (ValidacionException e) {
 			modelAndView.addObject("errorGeneral", e.getMessage());
 		}

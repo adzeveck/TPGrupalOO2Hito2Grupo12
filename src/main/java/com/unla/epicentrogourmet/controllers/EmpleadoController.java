@@ -93,7 +93,6 @@ public class EmpleadoController {
 		}
 	}
 
-
 	// POST /responsable/empleados
 	@PostMapping("/responsable/empleados")
 	@PreAuthorize("hasRole('RESPONSABLE')")
