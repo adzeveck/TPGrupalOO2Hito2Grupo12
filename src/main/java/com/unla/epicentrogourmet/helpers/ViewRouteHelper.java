@@ -25,7 +25,7 @@ public class ViewRouteHelper {
 	public final static String PLATO_LIST = "responsable/platos";
 	public final static String PLATO_FORM = "responsable/plato-form";
 	public final static String EMPLEADO_LIST = "responsable/empleados";
-	public final static String EMPLEADO_FORM = "responsable/empleado-form";
+	public final static String EMPLEADO_FORM = "responsable/empleadoForm";
 
 	//EMPLEADO
 	public final static String EMPLEADO_INDEX = "empleado/index";
