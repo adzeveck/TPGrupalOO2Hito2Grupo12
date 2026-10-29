@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head}"></head>
+<body>
+<nav th:replace="~{layout :: navbar}"></nav>
+
+<main class="container py-4">
+  <h1 class="mb-1">Liquidación de haberes del personal</h1>
+
+  <div th:if="${errorGeneral != null}">
+    <div class="alert alert-warning mt-3" th:text="${errorGeneral}">Mensaje</div>
+    <a class="btn btn-secondary" th:href="@{/responsable/index}">Volver</a>
+  </div>
+
+  <div th:if="${errorGeneral == null}">
+    <p class="text-muted mb-4">
+      <span th:text="${planilla.festival}">Festival</span> ·
+      <span th:text="${planilla.unidad}">Unidad</span> ·
+      <span th:text="${#temporals.format(planilla.fechaInicio, 'dd/MM/yyyy')} + ' al ' + ${#temporals.format(planilla.fechaFin, 'dd/MM/yyyy')}">01/10/2026 al 15/11/2026</span>
+      (<span th:text="${planilla.dias}">46</span> días)
+    </p>
+
+    <div class="card">
+      <div class="card-header">Personal activo (por el festival completo)</div>
+      <p class="card-body text-muted mb-0" th:if="${#lists.isEmpty(planilla.liquidaciones)}">La unidad no tiene personal activo.</p>
+      <div class="table-responsive" th:unless="${#lists.isEmpty(planilla.liquidaciones)}">
+        <table class="table mb-0">
+          <thead>
+          <tr>
+            <th>Empleado</th>
+            <th>Puesto</th>
+            <th class="text-right">Sueldo base</th>
+            <th class="text-right">Adicional</th>
+            <th class="text-right">Subtotal</th>
+            <th class="text-right">%</th>
+            <th class="text-right">Total</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr th:each="l : ${planilla.liquidaciones}">
+            <td th:text="${l.empleado}">Nombre Apellido</td>
+            <td th:text="${l.puesto}">Cocinero</td>
+            <td class="text-right" th:text="'$ ' + ${#numbers.formatDecimal(l.sueldoBase, 1, 'POINT', 2, 'COMMA')}">$ 0,00</td>
+            <td class="text-right">
+              <span th:text="'$ ' + ${#numbers.formatDecimal(l.adicional, 1, 'POINT', 2, 'COMMA')}">$ 0,00</span>
+              <small class="d-block text-muted" th:text="${l.conceptoAdicional}">Plus</small>
+            </td>
+            <td class="text-right" th:text="'$ ' + ${#numbers.formatDecimal(l.subtotal, 1, 'POINT', 2, 'COMMA')}">$ 0,00</td>
+            <td class="text-right" th:text="${l.porcentaje} + '%'">200%</td>
+            <td class="text-right"><strong th:text="'$ ' + ${#numbers.formatDecimal(l.total, 1, 'POINT', 2, 'COMMA')}">$ 0,00</strong></td>
+          </tr>
+          </tbody>
+          <tfoot>
+          <tr class="table-success">
+            <th colspan="6">Total de la planilla</th>
+            <th class="text-right" th:text="'$ ' + ${#numbers.formatDecimal(planilla.totalPlanilla, 1, 'POINT', 2, 'COMMA')}">$ 0,00</th>
+          </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+    <p class="text-muted small mt-2">Los empleados dados de baja no cobran y no figuran en la planilla.</p>
+
+    <a class="btn btn-secondary mt-2" th:href="@{/responsable/index}">Volver</a>
+  </div>
+</main>
+
+<footer th:replace="~{layout :: footer}"></footer>
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>
