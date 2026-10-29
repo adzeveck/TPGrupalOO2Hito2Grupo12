@@ -33,6 +33,7 @@ public class ViewRouteHelper {
 	public final static String PEDIDO_LIST = "empleado/pedidos";
 	public final static String CIERRE_CAJA = "empleado/cierre-caja";
 	public final static String SUELDO = "empleado/sueldo";
+	public final static String PUESTO_EMPLEADO = "empleado/puesto";
 
 	//REGISTRO
 	public final static String REGISTRO_FORM = "registro/form";
