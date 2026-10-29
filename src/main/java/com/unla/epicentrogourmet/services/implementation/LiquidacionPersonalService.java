@@ -30,7 +30,7 @@ public class LiquidacionPersonalService implements ILiquidacionPersonalService {
         this.liquidacionService = liquidacionService;
     }
 
-    // readOnly: solo lee. La sesión queda abierta durante el método, así que la unidad y el festival (LAZY)
+    // readOnly: solo lee. La sesión queda abierta mientras dura la operación, así que la unidad y el festival (LAZY)
     // de cada empleado se cargan bien al liquidarlo
     @Override
     @Transactional(readOnly = true)
