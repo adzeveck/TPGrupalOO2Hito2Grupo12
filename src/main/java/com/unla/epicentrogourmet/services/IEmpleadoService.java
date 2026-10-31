@@ -21,4 +21,6 @@ public interface IEmpleadoService {
     void modificar(String username, Integer empleadoId, EmpleadoFormDTO dto);
 
     boolean cambiarEstado(String username, Integer empleadoId);
+
+    void restablecerClave(String username, Integer empleadoId);
 }

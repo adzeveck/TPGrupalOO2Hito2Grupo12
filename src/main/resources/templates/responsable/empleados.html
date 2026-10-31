@@ -91,6 +91,14 @@
                               th:action="@{/responsable/empleados/{id}/estado(id=${persona.id})}">
                             <button class="btn btn-sm btn-outline-danger" type="submit">Dar de baja</button>
                         </form>
+                        <form class="d-inline" method="post"
+                              th:action="@{/responsable/empleados/{id}/restablecer-clave(id=${persona.id})}"
+                              onsubmit="return confirm('¿Restablecer la contraseña y enviar nuevas credenciales a este empleado?');">
+
+                            <button class="btn btn-sm btn-outline-primary" type="submit">
+                                Restablecer contraseña
+                            </button>
+                        </form>
                     </td>
                 </tr>
                 </tbody>
@@ -118,8 +126,13 @@
                     <td th:text="${persona.dni}">DNI</td>
                     <td th:text="${persona.usuario.username}">correo</td>
                     <td>
-                        <form method="post" th:action="@{/responsable/empleados/{id}/estado(id=${persona.id})}">
-                            <button class="btn btn-sm btn-outline-success" type="submit">Reactivar</button>
+                        <form class="d-inline" method="post"
+                              th:action="@{/responsable/empleados/{id}/estado(id=${persona.id})}"
+                              onsubmit="return confirm('¿Reactivar a este empleado? Se le enviará un correo de aviso.');">
+
+                            <button class="btn btn-sm btn-outline-success" type="submit">
+                                Reactivar
+                            </button>
                         </form>
                     </td>
                 </tr>

@@ -2,6 +2,7 @@ package com.unla.epicentrogourmet.controllers;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.mail.MailException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -175,5 +176,41 @@ public class EmpleadoController {
 		modelAndView.addObject("empleados", java.util.List.of());
 		modelAndView.addObject("todosLosEmpleados", java.util.List.of());
 		return modelAndView;
+	}
+
+	// POST /responsable/empleados/{id}/restablecer-clave
+	@PostMapping("/responsable/empleados/{id}/restablecer-clave")
+	@PreAuthorize("hasRole('RESPONSABLE')")
+	public ModelAndView restablecerClave(
+			Authentication authentication,
+			@PathVariable Integer id) {
+
+		try {
+			empleadoService.restablecerClave(
+					authentication.getName(),
+					id);
+
+			return new ModelAndView(
+					"redirect:"
+							+ ViewRouteHelper.EMPLEADOS_ROOT
+							+ "?estado=enviadas");
+
+		} catch (ValidacionException e) {
+
+			return vistaError(e);
+
+		} catch (MailException e) {
+
+			log.error(
+					"No se pudo restablecer la contraseña "
+							+ "y enviar las credenciales del empleado {}",
+					id,
+					e);
+
+			return new ModelAndView(
+					"redirect:"
+							+ ViewRouteHelper.EMPLEADOS_ROOT
+							+ "?estado=errorCorreo");
+		}
 	}
 }
