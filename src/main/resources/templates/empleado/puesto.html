@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head}"></head>
+<body>
+<nav th:replace="~{layout :: navbar}"></nav>
+
+<main class="container py-4">
+    <h1 class="mb-1">Mi festival y mi unidad de venta</h1>
+
+    <div th:if="${errorGeneral != null}">
+        <div class="alert alert-warning mt-3" th:text="${errorGeneral}">Mensaje</div>
+        <a class="btn btn-secondary" th:href="@{/empleado/index}">Volver</a>
+    </div>
+
+    <div th:if="${errorGeneral == null}">
+        <p class="text-muted mb-4">
+            <span th:text="${puesto.empleado}">Nombre Apellido</span> ·
+            <span th:text="${puesto.puesto}">Puesto</span>
+        </p>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                Festival
+                <span class="badge ml-2" th:classappend="${puesto.enCurso} ? 'badge-success' : 'badge-secondary'"
+                      th:text="${puesto.estado}">En curso</span>
+            </div>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item"><strong>Nombre:</strong> <span th:text="${puesto.festival}">Festival</span></li>
+                <li class="list-group-item"><strong>Temporada:</strong> <span th:text="${puesto.temporada}">Primavera</span></li>
+                <li class="list-group-item">
+                    <strong>Período:</strong>
+                    <span th:text="${#temporals.format(puesto.fechaInicio, 'dd/MM/yyyy')} + ' al ' + ${#temporals.format(puesto.fechaFin, 'dd/MM/yyyy')}">01/10/2026 al 15/11/2026</span>
+                    (<span th:text="${puesto.dias}">46</span> días)
+                </li>
+            </ul>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">Unidad de venta</div>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item"><strong>Nombre comercial:</strong> <span th:text="${puesto.unidad}">Unidad</span></li>
+                <li class="list-group-item"><strong>Tipo:</strong> <span th:text="${puesto.tipoUnidad}">Food Truck</span></li>
+                <li class="list-group-item"><strong>Código:</strong> <span th:text="${puesto.codigoUnidad}">FT00000001</span></li>
+                <li class="list-group-item"><strong>Superficie:</strong> <span th:text="${#numbers.formatDecimal(puesto.superficie, 1, 'POINT', 2, 'COMMA')} + ' m²'">12,00 m²</span></li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <div class="card-header">Mi puesto</div>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item"><strong>Puesto:</strong> <span th:text="${puesto.puesto}">Cocinero</span></li>
+                <li class="list-group-item"><strong>DNI:</strong> <span th:text="${puesto.dni}">30111222</span></li>
+                <li class="list-group-item"><strong>Fecha de ingreso:</strong> <span th:text="${#temporals.format(puesto.fechaIngreso, 'dd/MM/yyyy')}">01/03/2023</span></li>
+            </ul>
+        </div>
+
+        <a class="btn btn-secondary mt-3" th:href="@{/empleado/index}">Volver</a>
+    </div>
+</main>
+
+<footer th:replace="~{layout :: footer}"></footer>
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>

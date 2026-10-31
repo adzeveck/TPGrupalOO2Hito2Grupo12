@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head}"></head>
+<body>
+<nav th:replace="~{layout :: navbar}"></nav>
+
+<main class="container py-4">
+    <h1 class="mb-1">¿Trabajo hoy?</h1>
+
+    <div th:if="${errorGeneral != null}">
+        <div class="alert alert-warning mt-3" th:text="${errorGeneral}">Mensaje</div>
+        <a class="btn btn-secondary" th:href="@{/empleado/index}">Volver</a>
+    </div>
+
+    <div th:if="${errorGeneral == null}">
+        <p class="text-muted mb-4">
+            Hoy es <span th:text="${#temporals.format(consulta.hoy, 'dd/MM/yyyy')}">28/10/2026</span>
+        </p>
+
+        <div class="alert" role="alert"
+             th:classappend="${consulta.trabajaHoy} ? 'alert-success' : 'alert-secondary'">
+            <h4 class="alert-heading mb-0" th:text="${consulta.mensaje}">Sí, hoy trabajás</h4>
+        </div>
+
+        <div class="card">
+            <div class="card-header">Dónde y en qué puesto</div>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item"><strong>Festival:</strong> <span th:text="${consulta.puesto.festival}">Festival</span></li>
+                <li class="list-group-item">
+                    <strong>Período:</strong>
+                    <span th:text="${#temporals.format(consulta.puesto.fechaInicio, 'dd/MM/yyyy')} + ' al ' + ${#temporals.format(consulta.puesto.fechaFin, 'dd/MM/yyyy')}">01/10/2026 al 15/11/2026</span>
+                </li>
+                <li class="list-group-item">
+                    <strong>Unidad de venta:</strong>
+                    <span th:text="${consulta.puesto.unidad} + ' (' + ${consulta.puesto.tipoUnidad} + ')'">Unidad (Food Truck)</span>
+                </li>
+                <li class="list-group-item"><strong>Puesto:</strong> <span th:text="${consulta.puesto.puesto}">Cocinero</span></li>
+            </ul>
+        </div>
+
+        <a class="btn btn-outline-primary mt-3" th:href="@{/empleado/puesto}">Ver el detalle</a>
+        <a class="btn btn-secondary mt-3" th:href="@{/empleado/index}">Volver</a>
+    </div>
+</main>
+
+<footer th:replace="~{layout :: footer}"></footer>
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>
