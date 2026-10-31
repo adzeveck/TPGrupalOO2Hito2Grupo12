@@ -142,14 +142,64 @@ public class EmpleadoService implements IEmpleadoService {
         completarDatos(empleado, dto, empleado.getUsuario(), empleado.getUnidad());
     }
 
+
     @Override
+    @Transactional
+    public boolean cambiarEstado(
+            String username,
+            Integer empleadoId) {
+
+        Personal empleado = getEmpleadoDeLaUnidad(
+                username,
+                empleadoId);
+
+        boolean nuevoEstado =
+                !empleado.getUsuario().isEnabled();
+
+        String asunto = nuevoEstado
+                ? "Tu cuenta fue reactivada - Epicentro Gourmet"
+                : "Aviso de baja de cuenta - Epicentro Gourmet";
+
+        String texto = "Hola "
+                + empleado.getNombre()
+                + ",\n\n"
+                + (nuevoEstado
+                ? "Te informamos que tu cuenta de Epicentro Gourmet "
+                + "fue reactivada.\n"
+                : "Te informamos que tu cuenta de Epicentro Gourmet "
+                + "fue dada de baja.\n")
+                + "Usuario: "
+                + empleado.getUsuario().getUsername()
+                + "\n"
+                + (nuevoEstado
+                ? "Ya podés volver a iniciar sesión con tu "
+                + "contraseña actual.\n"
+                : "Tu acceso al sistema quedó deshabilitado. "
+                + "Si creés que se trata de un error, "
+                + "contactá al responsable.\n")
+                + "\nSaludos,\n"
+                + "Equipo de Epicentro Gourmet";
+
+        // Primero se envía el correo.
+        // Si SMTP falla, el estado no se modifica.
+        emailService.enviar(
+                empleado.getUsuario().getUsername(),
+                asunto,
+                texto);
+
+        // Se cambia el estado solamente después del envío correcto.
+        empleado.getUsuario().setEnabled(nuevoEstado);
+
+        return nuevoEstado;
+    }
+    /*@Override
     @Transactional
     public boolean cambiarEstado(String username, Integer empleadoId) {
         Personal empleado = getEmpleadoDeLaUnidad(username, empleadoId);
         // false = baja lógica; true = reactivación del mismo usuario y del mismo registro Personal.
         empleado.getUsuario().setEnabled(!empleado.getUsuario().isEnabled());
         return empleado.getUsuario().isEnabled();
-    }
+    }*/
 
     private Personal getEmpleadoDeLaUnidad(String username, Integer empleadoId) {
         UnidadDeVenta unidad = unidadDeVentaService.getDelResponsable(username);
@@ -215,6 +265,41 @@ public class EmpleadoService implements IEmpleadoService {
 
     private String normalizarEmail(String email) {
         return email.trim().toLowerCase(Locale.ROOT);
+    }
+
+
+    @Override
+    @Transactional
+    public void restablecerClave(String username, Integer empleadoId) {
+
+        Personal empleado = getEmpleadoDeLaUnidad(username, empleadoId);
+
+        String claveTemporal = generarClaveTemporal();
+
+        String correo = empleado.getUsuario().getUsername();
+
+        String texto = "Hola " + empleado.getNombre() + ",\n\n"
+                + "El responsable de tu unidad solicitó restablecer "
+                + "tu contraseña de Epicentro Gourmet.\n\n"
+                + "Usuario: " + correo + "\n"
+                + "Nueva contraseña temporal: " + claveTemporal + "\n\n"
+                + "Ingresá al sistema con estas credenciales y "
+                + "guardalas de forma segura.\n"
+                + "Si no solicitaste este cambio, contactá al "
+                + "responsable de tu unidad.\n\n"
+                + "Saludos,\n"
+                + "Equipo de Epicentro Gourmet";
+
+        // Primero se envía el correo.
+        // Si falla el envío, la contraseña actual no se modifica.
+        emailService.enviar(
+                correo,
+                "Restablecimiento de contraseña - Epicentro Gourmet",
+                texto);
+
+        // Si el envío fue correcto, se actualiza la contraseña.
+        empleado.getUsuario().setPassword(
+                passwordEncoder.encode(claveTemporal));
     }
 
     private boolean contiene(String valor, String filtro) {
