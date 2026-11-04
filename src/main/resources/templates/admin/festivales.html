@@ -5,38 +5,74 @@
 <nav th:replace="~{layout :: navbar}"></nav>
 
 <main class="container py-4">
-    <h1 class="mb-1">Festivales</h1>
-    <p class="text-muted mb-4">Todos los festivales cargados y sus unidades de venta.</p>
+    <h1 class="mb-1">Festivales y unidades de venta</h1>
+    <p class="text-muted mb-4">Cada festival con su estado, sus unidades de venta y el canon que paga cada una.</p>
 
     <p class="alert alert-info" th:if="${#lists.isEmpty(festivales)}">
         Todavía no hay festivales cargados.
     </p>
 
-    <div class="card mb-4" th:unless="${#lists.isEmpty(festivales)}">
-        <div class="table-responsive">
+    <div class="card mb-4" th:each="festival : ${festivales}" th:id="|festival-${festival.id}|">
+        <div class="card-header d-flex flex-wrap justify-content-between align-items-center">
+            <div>
+                <h2 class="h5 mb-1">
+                    <span th:text="${festival.nombre}">Festival</span>
+                    <span class="badge ml-1"
+                          th:classappend="${festival.estado.name() == 'EN_CURSO' ? 'badge-success'
+                                          : (festival.estado.name() == 'POR_VENIR' ? 'badge-info' : 'badge-secondary')}"
+                          th:text="${festival.estado.descripcion}">En curso</span>
+                </h2>
+                <small class="text-muted"
+                       th:text="|${festival.temporada} · del ${#temporals.format(festival.fechaInicio, 'dd/MM/yyyy')} al ${#temporals.format(festival.fechaFin, 'dd/MM/yyyy')}|">
+                    Temporada · del 01/10/2026 al 15/11/2026
+                </small>
+            </div>
+            <div class="text-md-right mt-2 mt-md-0">
+                <div th:text="${#lists.size(festival.unidades) == 1 ? '1 unidad de venta'
+                                : #lists.size(festival.unidades) + ' unidades de venta'}">0 unidades de venta</div>
+                <small class="text-muted"
+                       th:text="'Canon total: $ ' + ${#numbers.formatDecimal(festival.totalCanon, 1, 'POINT', 2, 'COMMA')}">
+                    Canon total: $ 0,00
+                </small>
+            </div>
+        </div>
+
+        <p class="card-body text-muted mb-0" th:if="${#lists.isEmpty(festival.unidades)}">
+            Este festival todavía no tiene unidades de venta registradas.
+        </p>
+
+        <div class="table-responsive" th:unless="${#lists.isEmpty(festival.unidades)}">
             <table class="table mb-0">
                 <thead>
                     <tr>
-                        <th>Festival</th>
-                        <th>Temporada</th>
-                        <th>Fechas</th>
-                        <th>Unidades</th>
-                        <th></th>
+                        <th>Código</th>
+                        <th>Nombre comercial</th>
+                        <th>Tipo</th>
+                        <th class="text-right">Superficie</th>
+                        <th>Responsable</th>
+                        <th class="text-right">Canon</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr th:each="festival : ${festivales}">
-                        <td th:text="${festival.nombre}">Festival</td>
-                        <td th:text="${festival.temporada}">Temporada</td>
-                        <td th:text="|${#temporals.format(festival.fechaInicio, 'dd/MM/yyyy')} al ${#temporals.format(festival.fechaFin, 'dd/MM/yyyy')}|">01/10/2026 al 15/11/2026</td>
-                        <td th:text="${festival.unidades.size()}">0</td>
-                        <td class="text-right">
-                            <a class="btn btn-sm btn-outline-primary"
-                               th:href="@{/admin/festivales/{id}/unidades(id=${festival.id})}">Ver unidades</a>
-                        </td>
+                    <tr th:each="unidad : ${festival.unidades}">
+                        <td th:text="${unidad.codigo}">FT00000001</td>
+                        <td th:text="${unidad.nombreComercial}">Unidad</td>
+                        <td th:text="${unidad.tipo}">Tipo</td>
+                        <td class="text-right"
+                            th:text="${#numbers.formatDecimal(unidad.superficie, 1, 'POINT', 2, 'COMMA')} + ' m²'">0 m²</td>
+                        <td th:text="${unidad.responsable}">responsable@epicentro.com</td>
+                        <td class="text-right"
+                            th:text="'$ ' + ${#numbers.formatDecimal(unidad.canon, 1, 'POINT', 2, 'COMMA')}">$ 0,00</td>
                     </tr>
                 </tbody>
             </table>
+        </div>
+
+        <div class="card-footer bg-transparent text-right" th:unless="${#lists.isEmpty(festival.unidades)}">
+            <a class="btn btn-sm btn-outline-primary"
+               th:href="@{/admin/canon(festivalId=${festival.id})}">Ver top de canon</a>
+            <a class="btn btn-sm btn-outline-primary ml-1"
+               th:href="@{/admin/recaudacion(festivalId=${festival.id})}">Ver ranking de recaudación</a>
         </div>
     </div>
 
