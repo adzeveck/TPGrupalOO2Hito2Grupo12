@@ -37,6 +37,7 @@ public class ViewRouteHelper {
 	public final static String SUELDO = "empleado/sueldo";
 	public final static String PUESTO_EMPLEADO = "empleado/puesto";
 	public final static String TRABAJO_HOY = "empleado/hoy";
+	public final static String EMPLEADO_PASSWORD = "empleado/password";
 
 	//REGISTRO
 	public final static String REGISTRO_FORM = "registro/form";
