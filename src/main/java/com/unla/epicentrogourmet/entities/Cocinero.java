@@ -1,5 +1,7 @@
 package com.unla.epicentrogourmet.entities;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import com.unla.epicentrogourmet.enums.CategoriaCocina;
 
 import jakarta.persistence.Column;
@@ -22,4 +24,13 @@ public class Cocinero extends Personal {
 	// La "tarea especial" del enunciado
 	@Column(length = 100)
 	private String especialidad;
+
+	@Override
+	public BigDecimal calcularAdicional(Costo costo, LocalDate hasta) {
+		return switch (categoria) {
+			case COCINERO -> costo.getPlusCocinero();
+			case AYUDANTE -> costo.getPlusAyudante();
+			case LAVAPLATOS -> costo.getPlusLavaplatos();
+		};
+	}
 }

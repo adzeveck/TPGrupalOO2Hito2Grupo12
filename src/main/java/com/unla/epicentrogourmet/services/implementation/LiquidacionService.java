@@ -1,7 +1,6 @@
 package com.unla.epicentrogourmet.services.implementation;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
 import org.springframework.stereotype.Service;
@@ -36,73 +35,69 @@ public class LiquidacionService implements ILiquidacionService {
 	}
 
 	// La misma cuenta para cualquier empleado, no solo el logueado: la usan la liquidación del
-	// personal de una unidad y la rentabilidad neta (que resta los sueldos)
+	// personal de una unidad y la rentabilidad neta (que resta los sueldos). Cubre el festival completo
 	@Override
 	@Transactional(readOnly = true)
 	public LiquidacionHaberesDTO calcular(Personal empleado) {
+		Festival festival = festivalDe(empleado);
+		return armar(empleado, festival, festival.getFechaInicio(), festival.getFechaFin());
+	}
+
+	// La liquidación de un tramo del festival: la usa el cierre por períodos
+	@Override
+	@Transactional(readOnly = true)
+	public LiquidacionHaberesDTO calcular(Personal empleado, LocalDate desde, LocalDate hasta) {
+		Festival festival = festivalDe(empleado);
+		if (desde.isAfter(hasta)) {
+			throw new ValidacionException(null, "El período no es válido: empieza después de terminar");
+		}
+		if (desde.isBefore(festival.getFechaInicio()) || hasta.isAfter(festival.getFechaFin())) {
+			throw new ValidacionException(null, "El período tiene que estar dentro del festival");
+		}
+		return armar(empleado, festival, desde, hasta);
+	}
+
+	private Festival festivalDe(Personal empleado) {
 		UnidadDeVenta unidad = empleado.getUnidad();
 		if (unidad == null) {
 			throw new ValidacionException(null, "El empleado no está asignado a ninguna unidad de venta");
 		}
-		Festival festival = unidad.getFestival();
-		Costo costo = festival.getCosto(); // todos los montos salen de los costos del festival: nada hardcodeado
+		return unidad.getFestival();
+	}
+
+	// Las cuentas las hace el empleado (calcularAdicional, calcularSueldo...); acá solo se arma el DTO
+	private LiquidacionHaberesDTO armar(Personal empleado, Festival festival, LocalDate desde, LocalDate hasta) {
+		Costo costo = festival.getCosto(); // los montos salen de los costos del festival: nada hardcodeado
+		long dias = ChronoUnit.DAYS.between(desde, hasta) + 1;
 
 		LiquidacionHaberesDTO dto = new LiquidacionHaberesDTO();
 		dto.setEmpleadoId(empleado.getId());
 		dto.setEmpleado(empleado.getNombre() + " " + empleado.getApellido());
 		dto.setDni(empleado.getDni());
-		dto.setUnidad(unidad.getNombreComercial());
+		dto.setUnidad(empleado.getUnidad().getNombreComercial());
 		dto.setFestival(festival.getNombre());
-		dto.setFechaInicio(festival.getFechaInicio());
-		dto.setFechaFin(festival.getFechaFin());
-		dto.setDias(ChronoUnit.DAYS.between(festival.getFechaInicio(), festival.getFechaFin()) + 1);
+		dto.setFechaInicio(desde);
+		dto.setFechaFin(hasta);
+		dto.setDias(dias);
 		dto.setSueldoBase(costo.getSueldoBase());
+		dto.setAdicional(empleado.calcularAdicional(costo, hasta));
+		dto.setSubtotal(dto.getSueldoBase().add(dto.getAdicional()));
+		dto.setPorcentaje(empleado.calcularPorcentajeLiquidacion(dias));
+		dto.setTotal(empleado.calcularSueldo(costo, hasta, dias));
 
-		// El tipo de empleado se sabe por la subclase (instanceof), no por un atributo
+		// Los textos para mostrar dependen del tipo de empleado (la subclase), no de un atributo
 		if (empleado instanceof Cocinero cocinero) {
-			switch (cocinero.getCategoria()) {
-				case COCINERO -> {
-					dto.setPuesto("Cocinero");
-					dto.setAdicional(costo.getPlusCocinero());
-				}
-				case AYUDANTE -> {
-					dto.setPuesto("Ayudante de cocina");
-					dto.setAdicional(costo.getPlusAyudante());
-				}
-				case LAVAPLATOS -> {
-					dto.setPuesto("Lavaplatos");
-					dto.setAdicional(costo.getPlusLavaplatos());
-				}
-			}
+			dto.setPuesto(switch (cocinero.getCategoria()) {
+				case COCINERO -> "Cocinero";
+				case AYUDANTE -> "Ayudante de cocina";
+				case LAVAPLATOS -> "Lavaplatos";
+			});
 			dto.setConceptoAdicional("Plus por categoría");
 		} else if (empleado instanceof Cajero cajero) {
-			// Antigüedad: años completos entre el ingreso y el fin del festival
-			long anios = Math.max(0, ChronoUnit.YEARS.between(empleado.getFechaIngreso(), festival.getFechaFin()));
+			long anios = empleado.calcularAniosDeAntiguedad(hasta);
 			dto.setPuesto("Cajero (turno " + (cajero.getTurno().name().equals("NOCHE") ? "noche" : "mañana") + ")");
-			dto.setAdicional(costo.getMontoPorAnioAntiguedad().multiply(BigDecimal.valueOf(anios)));
 			dto.setConceptoAdicional("Antigüedad (" + anios + (anios == 1 ? " año)" : " años)"));
 		}
-
-		dto.setSubtotal(dto.getSueldoBase().add(dto.getAdicional()));
-		dto.setPorcentaje(calcularPorcentaje(dto.getDias()));
-		dto.setTotal(calcularTotal(dto.getSubtotal(), dto.getDias()));
 		return dto;
-	}
-
-	// Hasta 15 días: 50%. De 16 a 30: 100%. Más de 30: (int(días / 15) + 1) * 50%
-	static int calcularPorcentaje(long dias) {
-		if (dias <= 15) {
-			return 50;
-		}
-		if (dias <= 30) {
-			return 100;
-		}
-		return (int) ((dias / 15) + 1) * 50;
-	}
-
-	// Dinero en BigDecimal, redondeado a centavos
-	static BigDecimal calcularTotal(BigDecimal subtotal, long dias) {
-		return subtotal.multiply(BigDecimal.valueOf(calcularPorcentaje(dias)))
-				.divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
 	}
 }
