@@ -42,12 +42,19 @@ public class ReporteService implements IReporteService {
 	@Override
 	@Transactional(readOnly = true)
 	public List<ReporteMayoresCanonDTO> getMayoresCanon(Integer festivalId, Integer limite) {
-		int cantidad = limite == null ? LIMITE_POR_DEFECTO : limite;
-		if (cantidad < 1 || cantidad > 100) {
-			throw new ValidacionException("limite", "La cantidad de unidades tiene que estar entre 1 y 100");
+		Festival festival = festivalService.getConUnidades(festivalId);
+		int totalUnidades = festival.getUnidades().size();
+		if (totalUnidades == 0) {
+			return List.of(); // la vista muestra "El festival no tiene unidades de venta"
 		}
 
-		Festival festival = festivalService.getConUnidades(festivalId);
+		// La x va de 1 a la cantidad de unidades de ESTE festival
+		int cantidad = limite == null ? Math.min(LIMITE_POR_DEFECTO, totalUnidades) : limite;
+		if (cantidad < 1 || cantidad > totalUnidades) {
+			throw new ValidacionException("limite", "La cantidad tiene que estar entre 1 y " + totalUnidades
+					+ ", que son las unidades de venta de este festival");
+		}
+
 		Costo costo = festival.getCosto(); // el canon se calcula con los montos del festival, nada hardcodeado
 		return festival.getUnidades().stream()
 				.map(unidad -> aReporte(unidad, costo))
