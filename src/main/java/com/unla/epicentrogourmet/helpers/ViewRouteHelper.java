@@ -11,7 +11,6 @@ public class ViewRouteHelper {
 	//ADMIN
 	public final static String ADMIN_INDEX = "admin/index";
 	public final static String ADMIN_FESTIVALES = "admin/festivales";
-	public final static String ADMIN_FESTIVAL_UNIDADES = "admin/festival-unidades";
 	public final static String ADMIN_CANON = "admin/canon";
 	public final static String ADMIN_RECAUDACION = "admin/recaudacion";
 
