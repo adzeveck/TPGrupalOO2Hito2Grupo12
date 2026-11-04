@@ -1,6 +1,9 @@
 package com.unla.epicentrogourmet.entities;
 
 import java.time.LocalDate;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.temporal.ChronoUnit;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -70,5 +73,43 @@ public abstract class Personal {
 			return cajero.getTurno() == com.unla.epicentrogourmet.enums.Turno.MANIANA ? "Mañana" : "Noche";
 		}
 		return "";
+	}
+
+	// ---- Cuentas de la liquidación: las hace el empleado, que es quien tiene los datos
+
+	// Lo que se suma al sueldo base: lo define cada tipo de empleado (plus de categoría o antigüedad)
+	public abstract BigDecimal calcularAdicional(Costo costo, LocalDate hasta);
+
+	// Años completos de antigüedad hasta una fecha
+	public long calcularAniosDeAntiguedad(LocalDate hasta) {
+		return Math.max(0, ChronoUnit.YEARS.between(fechaIngreso, hasta));
+	}
+
+	// Hasta 15 días: 50%. De 16 a 30: 100%. Más de 30: (int(días / 15) + 1) * 50%
+	public int calcularPorcentajeLiquidacion(long dias) {
+		if (dias <= 15) {
+			return 50;
+		}
+		if (dias <= 30) {
+			return 100;
+		}
+		return (int) ((dias / 15) + 1) * 50;
+	}
+
+	// (sueldo base + adicional) por el porcentaje que corresponde a los días del período.
+	// Dinero en BigDecimal, redondeado a centavos
+	public BigDecimal calcularSueldo(Costo costo, LocalDate hasta, long dias) {
+		BigDecimal subtotal = costo.getSueldoBase().add(calcularAdicional(costo, hasta));
+		return subtotal.multiply(BigDecimal.valueOf(calcularPorcentajeLiquidacion(dias)))
+				.divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+	}
+
+	// Primer día que falta liquidar: el siguiente al último tramo cerrado. La primera vez, el que
+	// llegue último entre el inicio del festival y su fecha de ingreso
+	public LocalDate calcularDesde(Festival festival, LocalDate ultimoHastaLiquidado) {
+		if (ultimoHastaLiquidado != null) {
+			return ultimoHastaLiquidado.plusDays(1);
+		}
+		return fechaIngreso.isAfter(festival.getFechaInicio()) ? fechaIngreso : festival.getFechaInicio();
 	}
 }

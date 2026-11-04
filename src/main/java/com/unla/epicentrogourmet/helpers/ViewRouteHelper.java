@@ -22,6 +22,7 @@ public class ViewRouteHelper {
 	public final static String RESPONSABLE_RECAUDACION_DIARIA = "responsable/recaudacion-diaria";
 	public final static String RESPONSABLE_RENTABILIDAD = "responsable/rentabilidad";
 	public final static String RESPONSABLE_LIQUIDACIONES = "responsable/liquidaciones";
+	public final static String RESPONSABLE_CIERRE_LIQUIDACION = "responsable/cierre-liquidacion";
 	public final static String PLATO_LIST = "responsable/platos";
 	public final static String PLATO_FORM = "responsable/plato-form";
 	public final static String EMPLEADO_LIST = "responsable/empleados";
