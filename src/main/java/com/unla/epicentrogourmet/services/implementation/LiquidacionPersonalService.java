@@ -15,6 +15,7 @@ import com.unla.epicentrogourmet.repositories.IPersonalRepository;
 import com.unla.epicentrogourmet.services.ILiquidacionPersonalService;
 import com.unla.epicentrogourmet.services.ILiquidacionService;
 import com.unla.epicentrogourmet.services.IUnidadDeVentaService;
+import com.unla.epicentrogourmet.exceptions.ValidacionException;
 
 @Service("liquidacionPersonalService")
 public class LiquidacionPersonalService implements ILiquidacionPersonalService {
@@ -57,5 +58,19 @@ public class LiquidacionPersonalService implements ILiquidacionPersonalService {
         }
         dto.setTotalPlanilla(total);
         return dto;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public LiquidacionHaberesDTO calcularDeEmpleado(String username, Integer empleadoId) {
+        // La unidad sale del responsable logueado: solo puede pedir empleados de su propia unidad
+        UnidadDeVenta unidad = unidadDeVentaService.getDelResponsable(username);
+        Personal empleado = personalRepository.findByIdAndUnidadId(empleadoId, unidad.getId())
+                .orElseThrow(() -> new ValidacionException(null, "El empleado no pertenece a tu unidad"));
+        // Igual que en la planilla: los dados de baja no cobran
+        if (!empleado.getUsuario().isEnabled()) {
+            throw new ValidacionException(null, "El empleado está dado de baja");
+        }
+        return liquidacionService.calcular(empleado);
     }
 }

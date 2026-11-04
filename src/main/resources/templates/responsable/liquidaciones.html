@@ -34,6 +34,7 @@
             <th class="text-right">Subtotal</th>
             <th class="text-right">%</th>
             <th class="text-right">Total</th>
+            <th class="text-right">Recibo</th>
           </tr>
           </thead>
           <tbody>
@@ -48,12 +49,17 @@
             <td class="text-right" th:text="'$ ' + ${#numbers.formatDecimal(l.subtotal, 1, 'POINT', 2, 'COMMA')}">$ 0,00</td>
             <td class="text-right" th:text="${l.porcentaje} + '%'">200%</td>
             <td class="text-right"><strong th:text="'$ ' + ${#numbers.formatDecimal(l.total, 1, 'POINT', 2, 'COMMA')}">$ 0,00</strong></td>
+            <td class="text-right">
+              <a class="btn btn-sm btn-outline-primary"
+                 th:href="@{/responsable/liquidaciones/{id}/recibo(id=${l.empleadoId})}">PDF</a>
+            </td>
           </tr>
           </tbody>
           <tfoot>
           <tr class="table-success">
             <th colspan="6">Total de la planilla</th>
             <th class="text-right" th:text="'$ ' + ${#numbers.formatDecimal(planilla.totalPlanilla, 1, 'POINT', 2, 'COMMA')}">$ 0,00</th>
+            <th></th>
           </tr>
           </tfoot>
         </table>

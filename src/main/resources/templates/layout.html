@@ -45,6 +45,10 @@
                             <span sec:authentication="name">usuario</span>
                         </a>
                         <div class="dropdown-menu dropdown-menu-right">
+                            <a class="dropdown-item" sec:authorize="hasRole('EMPLEADO')" th:href="@{/empleado/password}">
+                                Cambiar contraseña
+                            </a>
+                            <div class="dropdown-divider" sec:authorize="hasRole('EMPLEADO')"></div>
                             <form th:action="@{/logout}" method="post">
                                 <button type="submit" class="dropdown-item">Cerrar sesión</button>
                             </form>

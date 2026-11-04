@@ -8,10 +8,12 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 // Reporte de la liquidación de un empleado en un festival. Se calcula en el momento y no se persiste.
-// Es una vista de los datos, no una copia de la entidad: sin ids y con textos listos para mostrar
+// Es una vista de los datos, no una copia de la entidad: textos listos para mostrar y el id del empleado
+// solo para armar el enlace a su recibo
 @Getter @Setter @NoArgsConstructor
 public class LiquidacionHaberesDTO {
 
+	private Integer empleadoId;
 	private String empleado;
 	private String dni;
 	private String puesto;          // "Cocinero", "Ayudante de cocina", "Cajero (turno noche)"...
