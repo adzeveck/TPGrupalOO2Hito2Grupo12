@@ -48,6 +48,7 @@ public class LiquidacionService implements ILiquidacionService {
 		Costo costo = festival.getCosto(); // todos los montos salen de los costos del festival: nada hardcodeado
 
 		LiquidacionHaberesDTO dto = new LiquidacionHaberesDTO();
+		dto.setEmpleadoId(empleado.getId());
 		dto.setEmpleado(empleado.getNombre() + " " + empleado.getApellido());
 		dto.setDni(empleado.getDni());
 		dto.setUnidad(unidad.getNombreComercial());
