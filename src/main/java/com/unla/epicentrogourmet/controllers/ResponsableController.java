@@ -17,6 +17,7 @@ import com.unla.epicentrogourmet.exceptions.ValidacionException;
 import com.unla.epicentrogourmet.helpers.ViewRouteHelper;
 import com.unla.epicentrogourmet.services.IRentabilidadService;
 import com.unla.epicentrogourmet.services.IReporteService;
+import com.unla.epicentrogourmet.services.ITableroService;
 import com.unla.epicentrogourmet.services.IUnidadDeVentaService;
 
 @Controller
@@ -27,18 +28,28 @@ public class ResponsableController {
 	private final IUnidadDeVentaService unidadDeVentaService;
 	private final IReporteService reporteService;
 	private final IRentabilidadService rentabilidadService;
+	private final ITableroService tableroService;
 
 	public ResponsableController(IUnidadDeVentaService unidadDeVentaService,
 								 IReporteService reporteService,
-								 IRentabilidadService rentabilidadService) {
+								 IRentabilidadService rentabilidadService,
+								 ITableroService tableroService) {
 		this.unidadDeVentaService = unidadDeVentaService;
 		this.reporteService = reporteService;
 		this.rentabilidadService = rentabilidadService;
+		this.tableroService = tableroService;
 	}
 
+	// Tablero: la unidad, el festival (en qué día va) y los indicadores principales, cada uno con link a su detalle
 	@GetMapping("/index")
-	public ModelAndView index() {
-		return new ModelAndView(ViewRouteHelper.RESPONSABLE_INDEX);
+	public ModelAndView index(Authentication authentication) {
+		ModelAndView modelAndView = new ModelAndView(ViewRouteHelper.RESPONSABLE_INDEX);
+		try {
+			modelAndView.addObject("tablero", tableroService.getTablero(authentication.getName(), LocalDate.now()));
+		} catch (ValidacionException e) {
+			modelAndView.addObject("errorGeneral", e.getMessage());
+		}
+		return modelAndView;
 	}
 
 	// Canon de la unidad del responsable logueado. La fórmula la resuelve la propia unidad.

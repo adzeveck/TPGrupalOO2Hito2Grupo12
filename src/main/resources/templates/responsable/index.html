@@ -10,6 +10,168 @@
             <p class="text-muted mb-0">Sesión iniciada como <strong sec:authentication="name">usuario</strong></p>
         </div>
 
+        <div class="alert alert-warning" th:if="${errorGeneral != null}" th:text="${errorGeneral}">Mensaje</div>
+
+        <th:block th:if="${tablero != null}">
+            <!-- La unidad y su festival: en qué día va -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="d-flex flex-wrap justify-content-between">
+                        <div class="mb-2">
+                            <h3 class="h4 mb-1" th:text="${tablero.unidad}">Unidad</h3>
+                            <small class="text-muted" th:text="|${tablero.codigo} · ${tablero.tipo}|">FT00000001 · Food Truck</small>
+                        </div>
+                        <div class="text-md-right mb-2">
+                            <div>
+                                <strong th:text="${tablero.festival}">Festival</strong>
+                                <span class="badge ml-1"
+                                      th:classappend="${tablero.estado.name() == 'EN_CURSO' ? 'badge-success'
+                                                      : (tablero.estado.name() == 'POR_VENIR' ? 'badge-info' : 'badge-secondary')}"
+                                      th:text="${tablero.estado.descripcion}">En curso</span>
+                            </div>
+                            <small class="text-muted"
+                                   th:text="|del ${#temporals.format(tablero.fechaInicio, 'dd/MM/yyyy')} al ${#temporals.format(tablero.fechaFin, 'dd/MM/yyyy')}|">
+                                del 01/10/2026 al 15/11/2026
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="progress" style="height: 10px;">
+                        <div class="progress-bar bg-success" role="progressbar"
+                             th:style="|width: ${tablero.porcentajeAvance}%|"
+                             th:attr="aria-valuenow=${tablero.porcentajeAvance}"
+                             aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <small class="text-muted d-block mt-2" th:switch="${tablero.estado.name()}">
+                        <span th:case="'POR_VENIR'"
+                              th:text="|Empieza en ${tablero.diasParaEmpezar} días · dura ${tablero.diasTotales} días|">Empieza en N días</span>
+                        <span th:case="'EN_CURSO'"
+                              th:text="${tablero.diasRestantes == 0}
+                                       ? |Día ${tablero.diasTranscurridos} de ${tablero.diasTotales} · hoy es el último día|
+                                       : |Día ${tablero.diasTranscurridos} de ${tablero.diasTotales} · quedan ${tablero.diasRestantes} días|">Día N de M</span>
+                        <span th:case="*" th:text="|Terminó · duró ${tablero.diasTotales} días|">Terminó</span>
+                    </small>
+                </div>
+            </div>
+
+            <!-- Indicadores: cada tarjeta lleva a la pantalla de detalle que ya existía -->
+            <div class="row">
+                <div class="col-sm-6 col-lg-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="text-muted small text-uppercase">Recaudación a la fecha</div>
+                            <div class="h4 mb-1" th:if="${tablero.recaudacion != null}"
+                                 th:text="'$ ' + ${#numbers.formatDecimal(tablero.recaudacion, 1, 'POINT', 2, 'COMMA')}">$ 0,00</div>
+                            <small class="text-muted" th:if="${tablero.recaudacion != null}"
+                                   th:text="|${tablero.cantidadPedidos} pedidos en el festival|">0 pedidos</small>
+                            <div class="text-muted" th:if="${tablero.recaudacion == null}">Sin datos</div>
+                        </div>
+                        <div class="card-footer bg-transparent">
+                            <a th:href="@{/responsable/recaudacion}">Ver detalle</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-6 col-lg-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="text-muted small text-uppercase">Pedidos de hoy</div>
+                            <div class="h4 mb-1" th:if="${tablero.pedidosHoy != null}" th:text="${tablero.pedidosHoy}">0</div>
+                            <small class="text-muted" th:if="${tablero.pedidosHoy != null}"
+                                   th:text="'$ ' + ${#numbers.formatDecimal(tablero.recaudacionHoy, 1, 'POINT', 2, 'COMMA')} + ' vendidos hoy'">$ 0,00</small>
+                            <div class="text-muted" th:if="${tablero.pedidosHoy == null}">Sin datos</div>
+                        </div>
+                        <div class="card-footer bg-transparent">
+                            <a th:href="@{/responsable/recaudacion/diaria}">Ver recaudación por día</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-6 col-lg-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="text-muted small text-uppercase">Canon del festival</div>
+                            <div class="h4 mb-1" th:if="${tablero.canon != null}"
+                                 th:text="'$ ' + ${#numbers.formatDecimal(tablero.canon, 1, 'POINT', 2, 'COMMA')}">$ 0,00</div>
+                            <small class="text-muted" th:if="${tablero.canon != null}">Lo que paga la unidad por participar</small>
+                            <div class="text-muted" th:if="${tablero.canon == null}">Sin datos</div>
+                        </div>
+                        <div class="card-footer bg-transparent">
+                            <a th:href="@{/responsable/canon}">Ver cómo se calcula</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-6 col-lg-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="text-muted small text-uppercase">Empleados activos</div>
+                            <div class="h4 mb-1" th:if="${tablero.empleadosActivos != null}" th:text="${tablero.empleadosActivos}">0</div>
+                            <small class="text-muted" th:if="${tablero.empleadosActivos != null}">Sin contar los dados de baja</small>
+                            <div class="text-muted" th:if="${tablero.empleadosActivos == null}">Sin datos</div>
+                        </div>
+                        <div class="card-footer bg-transparent">
+                            <a th:href="@{/responsable/empleados}">Ver empleados</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-6 col-lg-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="text-muted small text-uppercase">Sueldos a liquidar</div>
+                            <div class="h4 mb-1" th:if="${tablero.sueldosALiquidar != null}"
+                                 th:text="'$ ' + ${#numbers.formatDecimal(tablero.sueldosALiquidar, 1, 'POINT', 2, 'COMMA')}">$ 0,00</div>
+                            <small class="text-muted" th:if="${tablero.sueldosALiquidar != null}">Planilla del personal activo</small>
+                            <div class="text-muted" th:if="${tablero.sueldosALiquidar == null}">Sin datos</div>
+                        </div>
+                        <div class="card-footer bg-transparent">
+                            <a th:href="@{/responsable/liquidaciones}">Ver liquidación</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-6 col-lg-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="text-muted small text-uppercase">Rentabilidad neta a la fecha</div>
+                            <th:block th:if="${tablero.rentabilidad != null}">
+                                <div class="h4 mb-1"
+                                     th:classappend="${tablero.rentabilidad.signum() < 0 ? 'text-danger' : 'text-success'}"
+                                     th:text="'$ ' + ${#numbers.formatDecimal(tablero.rentabilidad, 1, 'POINT', 2, 'COMMA')}">$ 0,00</div>
+                                <small class="text-muted"
+                                       th:text="|Del ${#temporals.format(tablero.fechaInicio, 'dd/MM')} al ${#temporals.format(tablero.rentabilidadHasta, 'dd/MM')}|">Del 01/10 al 04/11</small>
+                            </th:block>
+                            <div class="text-muted" th:if="${tablero.rentabilidad == null}"
+                                 th:text="${tablero.mensajeRentabilidad != null ? tablero.mensajeRentabilidad : 'Sin datos'}">Sin datos</div>
+                        </div>
+                        <div class="card-footer bg-transparent">
+                            <a th:if="${tablero.rentabilidadHasta != null}"
+                               th:href="@{/responsable/rentabilidad(desde=${tablero.fechaInicio},hasta=${tablero.rentabilidadHasta})}">Ver detalle</a>
+                            <a th:unless="${tablero.rentabilidadHasta != null}" th:href="@{/responsable/rentabilidad}">Ver detalle</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-6 col-lg-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="text-muted small text-uppercase">Plato estrella</div>
+                            <div class="h4 mb-1" th:if="${tablero.platoEstrella != null}" th:text="${tablero.platoEstrella}">Plato</div>
+                            <small class="text-muted" th:if="${tablero.platoEstrella != null}"
+                                   th:text="|${tablero.platoEstrellaCantidad} unidades vendidas|">0 unidades vendidas</small>
+                            <div class="text-muted" th:if="${tablero.platoEstrella == null}"
+                                 th:text="${tablero.mensajePlatoEstrella != null ? tablero.mensajePlatoEstrella : 'Sin datos'}">Sin datos</div>
+                        </div>
+                        <div class="card-footer bg-transparent">
+                            <a th:href="@{/responsable/plato-estrella}">Ver detalle</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </th:block>
+
+        <!-- Las acciones de siempre: lo que no es un indicador (alta de platos, empleados, etc.) -->
         <div class="card">
             <div class="card-header">Acciones del responsable</div>
             <div class="list-group list-group-flush">
