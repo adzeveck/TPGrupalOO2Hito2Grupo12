@@ -47,8 +47,11 @@ public class ReciboPersonalController {
                     .contentType(MediaType.APPLICATION_PDF)
                     .body(pdf);
         } catch (ValidacionException e) {
-            // Empleado de otra unidad, inexistente o dado de baja: no hay recibo, vuelve a la planilla
-            return ResponseEntity.status(HttpStatus.FOUND).location(URI.create("/responsable/liquidaciones")).build();
+            // Empleado de otra unidad, inexistente o dado de baja: no hay recibo.
+            // Vuelve a la planilla y el parámetro le avisa al responsable
+            return ResponseEntity.status(HttpStatus.FOUND)
+                    .location(URI.create("/responsable/liquidaciones?reciboError"))
+                    .build();
         }
     }
 }
