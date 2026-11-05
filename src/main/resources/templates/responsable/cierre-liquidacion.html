@@ -45,9 +45,10 @@
                         <th>Desde</th>
                         <th>Hasta</th>
                         <th class="text-right">Días</th>
-                        <th class="text-right">Subtotal</th>
-                        <th class="text-right">%</th>
-                        <th class="text-right">Total</th>
+                        <th class="text-right">Acumulado</th>
+                        <th class="text-right">Corresponde</th>
+                        <th class="text-right">Ya pagado</th>
+                        <th class="text-right">A pagar ahora</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -57,21 +58,25 @@
                         <td th:text="${#temporals.format(l.fechaInicio, 'dd/MM/yyyy')}">01/10/2026</td>
                         <td th:text="${#temporals.format(l.fechaFin, 'dd/MM/yyyy')}">15/10/2026</td>
                         <td class="text-right" th:text="${l.dias}">15</td>
-                        <td class="text-right" th:text="'$ ' + ${#numbers.formatDecimal(l.subtotal, 1, 'POINT', 2, 'COMMA')}">$ 0,00</td>
-                        <td class="text-right" th:text="${l.porcentaje} + '%'">50%</td>
+                        <td class="text-right" th:text="${l.diasAcumulados} + ' d · ' + ${l.porcentaje} + '%'">15 d · 50%</td>
+                        <td class="text-right" th:text="'$ ' + ${#numbers.formatDecimal(l.corresponde, 1, 'POINT', 2, 'COMMA')}">$ 0,00</td>
+                        <td class="text-right" th:text="'$ ' + ${#numbers.formatDecimal(l.yaPagado, 1, 'POINT', 2, 'COMMA')}">$ 0,00</td>
                         <td class="text-right"><strong th:text="'$ ' + ${#numbers.formatDecimal(l.total, 1, 'POINT', 2, 'COMMA')}">$ 0,00</strong></td>
                     </tr>
                     </tbody>
                     <tfoot>
                     <tr class="table-success">
-                        <th colspan="7">Total a liquidar</th>
+                        <th colspan="8">Total a pagar ahora</th>
                         <th class="text-right" th:text="'$ ' + ${#numbers.formatDecimal(cierre.total, 1, 'POINT', 2, 'COMMA')}">$ 0,00</th>
                     </tr>
                     </tfoot>
                 </table>
             </div>
         </div>
-
+        <p class="text-muted small mt-2">
+            La escala se aplica a los días acumulados desde el primer día de cada empleado, y se descuenta lo ya pagado.
+            Un cierre en $ 0,00 es normal: esos días caen en un bloque que ya se pagó.
+        </p>
         <p class="text-muted small mt-2" th:unless="${#lists.isEmpty(cierre.sinDiasPorLiquidar)}">
             Sin días por liquidar: <span th:text="${#strings.listJoin(cierre.sinDiasPorLiquidar, ', ')}">Nombre</span>.
         </p>

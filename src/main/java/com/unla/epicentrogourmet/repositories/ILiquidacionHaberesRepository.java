@@ -1,10 +1,14 @@
 package com.unla.epicentrogourmet.repositories;
 
+
 import java.util.Optional;
 import java.util.List;
+import java.math.BigDecimal;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import com.unla.epicentrogourmet.entities.LiquidacionHaberes;
 
@@ -25,4 +29,8 @@ public interface ILiquidacionHaberesRepository extends JpaRepository<Liquidacion
 
     // Una liquidación cerrada, pero solo si es de esa unidad
     Optional<LiquidacionHaberes> findByIdAndUnidadId(Integer id, Integer unidadId);
+
+    // Suma de lo ya liquidado (pagado) al empleado. Es null si todavía no tiene ninguna
+    @Query("SELECT SUM(l.total) FROM LiquidacionHaberes l WHERE l.empleado.id = :empleadoId")
+    BigDecimal sumarTotalPorEmpleado(@Param("empleadoId") Integer empleadoId);
 }

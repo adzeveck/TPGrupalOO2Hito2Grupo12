@@ -2,6 +2,7 @@ package com.unla.epicentrogourmet.services.implementation;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.math.BigDecimal;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,10 +44,12 @@ public class LiquidacionService implements ILiquidacionService {
 		return armar(empleado, festival, festival.getFechaInicio(), festival.getFechaFin());
 	}
 
-	// La liquidación de un tramo del festival: la usa el cierre por períodos
+	// Lo que se paga al cerrar un tramo: la escala se aplica a los días acumulados desde el primer día del
+	// empleado (no a los del tramo) y se resta lo ya pagado. Así, se cierre como se cierre, la suma da lo mismo
 	@Override
 	@Transactional(readOnly = true)
-	public LiquidacionHaberesDTO calcular(Personal empleado, LocalDate desde, LocalDate hasta) {
+	public LiquidacionHaberesDTO calcularCierre(Personal empleado, LocalDate desde, LocalDate hasta,
+												BigDecimal yaPagado) {
 		Festival festival = festivalDe(empleado);
 		if (desde.isAfter(hasta)) {
 			throw new ValidacionException(null, "El período no es válido: empieza después de terminar");
@@ -54,7 +57,16 @@ public class LiquidacionService implements ILiquidacionService {
 		if (desde.isBefore(festival.getFechaInicio()) || hasta.isAfter(festival.getFechaFin())) {
 			throw new ValidacionException(null, "El período tiene que estar dentro del festival");
 		}
-		return armar(empleado, festival, desde, hasta);
+		LiquidacionHaberesDTO dto = armar(empleado, festival, desde, hasta);   // datos y días del tramo
+		long diasAcumulados = empleado.calcularDiasAcumulados(festival, hasta);
+		BigDecimal corresponde = empleado.calcularSueldoAcumulado(festival, hasta);
+		dto.setDiasAcumulados(diasAcumulados);
+		dto.setPorcentaje(empleado.calcularPorcentajeLiquidacion(diasAcumulados));
+		dto.setCorresponde(corresponde);
+		dto.setYaPagado(yaPagado);
+		// Nunca negativo: si por un cambio de costos ya se pagó de más, este cierre paga 0
+		dto.setTotal(corresponde.subtract(yaPagado).max(BigDecimal.ZERO));
+		return dto;
 	}
 
 	private Festival festivalDe(Personal empleado) {
@@ -84,6 +96,9 @@ public class LiquidacionService implements ILiquidacionService {
 		dto.setSubtotal(dto.getSueldoBase().add(dto.getAdicional()));
 		dto.setPorcentaje(empleado.calcularPorcentajeLiquidacion(dias));
 		dto.setTotal(empleado.calcularSueldo(costo, hasta, dias));
+		dto.setDiasAcumulados(dias);
+		dto.setCorresponde(dto.getTotal());
+		dto.setYaPagado(BigDecimal.ZERO);
 
 		// Los textos para mostrar dependen del tipo de empleado (la subclase), no de un atributo
 		if (empleado instanceof Cocinero cocinero) {

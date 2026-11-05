@@ -98,7 +98,9 @@ public class CierreLiquidacionService implements ICierreLiquidacionService {
         if (desde.isAfter(hasta)) {
             return null;
         }
-        return liquidacionService.calcular(empleado, desde, hasta);
+        BigDecimal yaPagado = liquidacionHaberesRepository.sumarTotalPorEmpleado(empleado.getId());
+        return liquidacionService.calcularCierre(empleado, desde, hasta,
+                yaPagado != null ? yaPagado : BigDecimal.ZERO);
     }
 
     private LiquidacionHaberes aEntidad(LiquidacionHaberesDTO dto, Personal empleado, UnidadDeVenta unidad) {
@@ -115,6 +117,9 @@ public class CierreLiquidacionService implements ICierreLiquidacionService {
         liquidacion.setPorcentaje(dto.getPorcentaje());
         liquidacion.setTotal(dto.getTotal());
         liquidacion.setConceptoAdicional(dto.getConceptoAdicional());
+        liquidacion.setDiasAcumulados((int) dto.getDiasAcumulados());
+        liquidacion.setCorresponde(dto.getCorresponde());
+        liquidacion.setYaPagado(dto.getYaPagado());
         return liquidacion;
     }
 }
