@@ -31,8 +31,9 @@
             Pedido <strong th:text="'#' + ${anulado}">#1</strong> anulado: ya no cuenta en la caja del día.
         </div>
         <div class="alert alert-warning" th:if="${errorAnular != null}" th:text="${errorAnular}">Mensaje</div>
+        <div class="alert alert-info" th:if="${cajaCerrada}">La caja de hoy ya está cerrada: no se pueden cargar ni anular pedidos.</div>
 
-        <a class="btn btn-primary mb-3 mr-2" th:href="@{/empleado/pedidos/nuevo}">Nuevo pedido</a>
+        <a class="btn btn-primary mb-3 mr-2" th:unless="${cajaCerrada}" th:href="@{/empleado/pedidos/nuevo}">Nuevo pedido</a>
         <a class="btn btn-outline-secondary mb-3" th:href="@{/empleado/pedidos/cierre}">Cierre de caja</a>
 
         <p class="text-muted" th:if="${#lists.isEmpty(pedidos)}">Todavía no hay pedidos cargados hoy.</p>
@@ -58,7 +59,7 @@
                             <td class="text-right" th:text="'$ ' + ${#numbers.formatDecimal(p.total, 1, 'POINT', 2, 'COMMA')}">$ 0,00</td>
                             <td class="text-right">
                                 <!-- El mensaje va en un data-*: Thymeleaf no deja armar texto dentro de onsubmit -->
-                                <form method="post" th:action="@{/empleado/pedidos/{id}/anular(id=${p.id})}"
+                                <form method="post" th:unless="${cajaCerrada}" th:action="@{/empleado/pedidos/{id}/anular(id=${p.id})}"
                                       th:data-mensaje="'¿Anular el pedido #' + ${p.id} + '? Se borra y deja de contar en la caja.'"
                                       onsubmit="return confirm(this.dataset.mensaje)">
                                     <button type="submit" class="btn btn-sm btn-outline-danger">Anular</button>

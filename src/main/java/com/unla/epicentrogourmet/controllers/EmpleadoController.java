@@ -42,6 +42,7 @@ public class EmpleadoController {
 		modelAndView.addObject(
 				"puedeCargarPedidos",
 				pedidoService.puedeCargarPedidos(authentication.getName()));
+		modelAndView.addObject("cajaCerrada", pedidoService.isCajaCerrada(authentication.getName()));
 		return modelAndView;
 	}
 
