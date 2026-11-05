@@ -44,10 +44,14 @@
             </div>
             <div class="form-group col-md-6">
                 <label for="tipo">Tipo</label>
-                <select class="form-control" id="tipo" name="tipo">
+                <select class="form-control empleado-select" id="tipo" name="tipo">
                     <option value="">Todos</option>
-                    <option value="COCINERO" th:selected="${tipo == 'COCINERO'}">Cocinero</option>
-                    <option value="CAJERO" th:selected="${tipo == 'CAJERO'}">Cajero</option>
+                    <option value="COCINERO" th:selected="${tipo == 'COCINERO'}">
+                        Cocinero
+                    </option>
+                    <option value="CAJERO" th:selected="${tipo == 'CAJERO'}">
+                        Cajero
+                    </option>
                 </select>
             </div>
         </div>
@@ -143,8 +147,6 @@
             </table>
         </div>
     </details>
-
-    <a class="btn btn-link px-0" th:href="@{/responsable/index}">Volver al panel</a>
 </main>
 
 <footer th:replace="~{layout :: footer}"></footer>

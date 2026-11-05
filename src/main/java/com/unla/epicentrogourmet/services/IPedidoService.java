@@ -1,39 +1,55 @@
 package com.unla.epicentrogourmet.services;
 
+import java.time.LocalDate;
 import java.util.List;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import com.unla.epicentrogourmet.dtos.CierreCajaDTO;
 import com.unla.epicentrogourmet.dtos.PedidoDTO;
 import com.unla.epicentrogourmet.entities.Pedido;
+import com.unla.epicentrogourmet.entities.Plato;
 import com.unla.epicentrogourmet.entities.UnidadDeVenta;
 
-// Alta de pedidos por el cajero. Todos los métodos reciben el username (email) del usuario logueado
+// Operaciones de pedidos para el empleado cajero.
 public interface IPedidoService {
 
-	// true si el usuario es un cajero: para mostrar u ocultar la opción "Nuevo pedido"
+	// true si el usuario es cajero: permite mostrar u ocultar sus acciones.
 	boolean puedeCargarPedidos(String username);
 
-	// La unidad donde trabaja el cajero
+	// La unidad donde trabaja el cajero.
 	UnidadDeVenta getUnidadDelCajero(String username);
 
-	// El formulario vacío: un renglón por cada plato activo de la unidad
+	// Formulario vacío, con un renglón por cada plato activo de la unidad.
 	PedidoDTO prepararFormulario(String username);
 
-	// Valida y guarda el pedido con fecha de hoy. Devuelve el pedido guardado
+	// Valida y guarda un pedido con fecha de hoy.
 	Pedido registrar(String username, PedidoDTO dto);
 
-	// Los pedidos de hoy de la unidad del cajero
+	// Listado de pedidos de hoy de la unidad.
 	List<Pedido> getPedidosDeHoy(String username);
 
-	// Cierre de caja: cantidad de pedidos, total y unidades por plato de hoy, y si ya se cerró
+	// Busca pedidos de la unidad por fecha y plato, con paginación.
+	Page<Pedido> buscarPedidos(
+			String username,
+			LocalDate desde,
+			LocalDate hasta,
+			Integer platoId,
+			Pageable pageable);
+
+	// Platos de la unidad para cargar las opciones del filtro.
+	List<Plato> getPlatosParaFiltro(String username);
+
+	// Cierre de caja: cantidad de pedidos, total y unidades vendidas por plato.
 	CierreCajaDTO getCierreDeCaja(String username);
 
-	// Guarda el cierre de caja de hoy: desde ese momento no se cargan ni se anulan pedidos
+	// Guarda el cierre de caja de hoy.
 	void cerrarCaja(String username);
 
-	// true si la unidad del empleado ya cerró la caja de hoy (false si no tiene unidad)
+	// Indica si la unidad ya cerró la caja de hoy.
 	boolean isCajaCerrada(String username);
 
-	// Borra un pedido de hoy de la unidad del cajero, para corregir un error de carga
+	// Anula un pedido de hoy de la unidad del cajero.
 	void anular(String username, Integer pedidoId);
 }
