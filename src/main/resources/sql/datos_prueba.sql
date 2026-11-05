@@ -16,6 +16,7 @@
 -- =====================================================================
 
 SET FOREIGN_KEY_CHECKS = 0;
+TRUNCATE TABLE cierre_caja;
 TRUNCATE TABLE liquidacion_haberes;
 TRUNCATE TABLE detalle_pedido;
 TRUNCATE TABLE pedido;
