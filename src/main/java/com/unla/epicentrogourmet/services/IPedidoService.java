@@ -1,6 +1,12 @@
 package com.unla.epicentrogourmet.services;
 
 import java.util.List;
+import java.time.LocalDate;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
+import com.unla.epicentrogourmet.entities.Plato;
 
 import com.unla.epicentrogourmet.dtos.CierreCajaDTO;
 import com.unla.epicentrogourmet.dtos.PedidoDTO;
@@ -30,4 +36,13 @@ public interface IPedidoService {
 
 	// Borra un pedido de hoy de la unidad del cajero, para corregir un error de carga
 	void anular(String username, Integer pedidoId);
+
+	Page<Pedido> buscarPedidos(
+			String username,
+			LocalDate desde,
+			LocalDate hasta,
+			Integer platoId,
+			Pageable pageable);
+
+	List<Plato> getPlatosParaFiltro(String username);
 }

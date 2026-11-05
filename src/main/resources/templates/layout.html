@@ -58,10 +58,43 @@
             </div>
         </div>
     </nav>
+    <div th:fragment="screenNavigation"
+         class="d-flex align-items-center ml-lg-3">
 
+        <a class="btn btn-outline-light btn-sm mr-2"
+           th:href="@{/index}"
+           onclick="if (window.history.length > 1) { window.history.back(); return false; }">
+            Volver
+        </a>
+
+        <a class="btn btn-light btn-sm"
+           sec:authorize="hasRole('ADMIN')"
+           th:href="@{/admin/index}">
+            Ir al panel
+        </a>
+
+        <a class="btn btn-light btn-sm"
+           sec:authorize="hasRole('RESPONSABLE')"
+           th:href="@{/responsable/index}">
+            Ir al panel
+        </a>
+
+        <a class="btn btn-light btn-sm"
+           sec:authorize="hasRole('EMPLEADO')"
+           th:href="@{/empleado/index}">
+            Ir al panel
+        </a>
+
+        <a class="btn btn-light btn-sm"
+           sec:authorize="isAnonymous()"
+           th:href="@{/index}">
+            Ir al inicio
+        </a>
+    </div>
     <!-- Footer -->
     <footer class="bg-dark text-white py-4" th:fragment="footer">
         <div class="container text-center">
+            <div th:replace="~{layout :: screenNavigation}"></div>
             <p class="mb-0">&copy; 2026 Epicentro Gourmet - OO2 UNLA - Grupo 12</p>
         </div>
     </footer>

@@ -10,6 +10,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import com.unla.epicentrogourmet.dtos.RecaudacionDiariaDTO;
 import com.unla.epicentrogourmet.dtos.ReporteVentaDTO;
 import com.unla.epicentrogourmet.entities.Pedido;
@@ -52,4 +55,30 @@ public interface IPedidoRepository extends JpaRepository<Pedido, Integer> {
 			+ "FROM Pedido p WHERE p.unidad.id = :unidadId "
 			+ "GROUP BY p.fecha ORDER BY p.fecha ASC")
 	List<RecaudacionDiariaDTO> findRecaudacionDiaria(@Param("unidadId") Integer unidadId);
+
+	//Busqueda de  pedidos de la unidad, con fechas opcionales y un filtro opcional por plato
+	@Query(
+			value = "SELECT p FROM Pedido p " +
+					"WHERE p.unidad.id = :unidadId " +
+					"AND (:desde IS NULL OR p.fecha >= :desde) " +
+					"AND (:hasta IS NULL OR p.fecha <= :hasta) " +
+					"AND (:platoId IS NULL OR EXISTS (" +
+					"    SELECT d.id FROM DetallePedido d " +
+					"    WHERE d.pedido = p AND d.plato.id = :platoId" +
+					"))",
+			countQuery = "SELECT COUNT(p) FROM Pedido p " +
+					"WHERE p.unidad.id = :unidadId " +
+					"AND (:desde IS NULL OR p.fecha >= :desde) " +
+					"AND (:hasta IS NULL OR p.fecha <= :hasta) " +
+					"AND (:platoId IS NULL OR EXISTS (" +
+					"    SELECT d.id FROM DetallePedido d " +
+					"    WHERE d.pedido = p AND d.plato.id = :platoId" +
+					"))"
+	)
+	Page<Pedido> buscarPorUnidadYFiltros(
+			@Param("unidadId") Integer unidadId,
+			@Param("desde") LocalDate desde,
+			@Param("hasta") LocalDate hasta,
+			@Param("platoId") Integer platoId,
+			Pageable pageable);
 }

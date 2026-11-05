@@ -5,79 +5,183 @@
 <nav th:replace="~{layout :: navbar}"></nav>
 
 <main class="container py-4">
-    <h1 class="mb-1">Pedidos de hoy</h1>
+    <h1 class="mb-1">Buscador de pedidos</h1>
 
     <div th:if="${errorGeneral != null}">
-        <div class="alert alert-warning mt-3" th:text="${errorGeneral}">Mensaje</div>
-        <a class="btn btn-secondary" th:href="@{/empleado/index}">Volver</a>
+        <div class="alert alert-warning mt-3" th:text="${errorGeneral}">
+            Mensaje
+        </div>
+        <a class="btn btn-secondary" th:href="@{/empleado/index}">
+            Volver
+        </a>
     </div>
 
     <div th:if="${errorGeneral == null}">
         <p class="text-muted mb-4">
-            <span th:text="${unidad.nombreComercial}">Unidad</span> ·
-            <span th:text="${#temporals.format(hoy, 'dd/MM/yyyy')}">18/10/2026</span>
+            Unidad:
+            <strong th:text="${unidad.nombreComercial}">Unidad</strong>
         </p>
 
-        <!-- Aviso del pedido recién creado (llega por el redirect: ?creado=ID) -->
-        <div class="alert alert-success" th:if="${creado != null}"
-             th:with="nuevo=${pedidos.?[id == __${creado}__]}">
+        <div class="alert alert-success" th:if="${creado != null}">
             Pedido <strong th:text="'#' + ${creado}">#1</strong> registrado
-            <span th:unless="${#lists.isEmpty(nuevo)}"
-                  th:text="'por $ ' + ${#numbers.formatDecimal(nuevo[0].total, 1, 'POINT', 2, 'COMMA')}">por $ 0,00</span>.
+            <span th:each="p : ${pedidos}"
+                  th:if="${p.id == creado}"
+                  th:text="'por $ ' + ${#numbers.formatDecimal(p.total, 1, 'POINT', 2, 'COMMA')}">
+                por $ 0,00
+            </span>.
         </div>
 
-        <!-- Aviso de la anulación (?anulado=ID) o del motivo por el que no se pudo anular -->
         <div class="alert alert-info" th:if="${anulado != null}">
-            Pedido <strong th:text="'#' + ${anulado}">#1</strong> anulado: ya no cuenta en la caja del día.
+            Pedido <strong th:text="'#' + ${anulado}">#1</strong> anulado:
+            ya no cuenta en la caja del día.
         </div>
-        <div class="alert alert-warning" th:if="${errorAnular != null}" th:text="${errorAnular}">Mensaje</div>
 
-        <a class="btn btn-primary mb-3 mr-2" th:href="@{/empleado/pedidos/nuevo}">Nuevo pedido</a>
-        <a class="btn btn-outline-secondary mb-3" th:href="@{/empleado/pedidos/cierre}">Cierre de caja</a>
+        <div class="alert alert-warning"
+             th:if="${errorAnular != null}"
+             th:text="${errorAnular}">
+            No se pudo anular el pedido.
+        </div>
 
-        <p class="text-muted" th:if="${#lists.isEmpty(pedidos)}">Todavía no hay pedidos cargados hoy.</p>
+        <form method="get"
+              th:action="@{/empleado/pedidos}"
+              class="card card-body mb-4">
+
+            <div class="form-row">
+                <div class="form-group col-md-3">
+                    <label for="desde">Fecha desde</label>
+                    <input id="desde"
+                           name="desde"
+                           type="date"
+                           class="form-control"
+                           th:value="${desde}"/>
+                </div>
+
+                <div class="form-group col-md-3">
+                    <label for="hasta">Fecha hasta</label>
+                    <input id="hasta"
+                           name="hasta"
+                           type="date"
+                           class="form-control"
+                           th:value="${hasta}"/>
+                </div>
+
+                <div class="form-group col-md-4">
+                    <label for="platoId">Plato</label>
+                    <select id="platoId"
+                            name="platoId"
+                            class="form-control plato-select">
+                        <option value="">Todos los platos</option>
+                        <option th:each="plato : ${platosFiltro}"
+                                th:value="${plato.id}"
+                                th:text="${plato.nombre}"
+                                th:selected="${platoId != null and plato.id == platoId}">
+                            Plato
+                        </option>
+                    </select>
+                </div>
+
+                <div class="form-group col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary mr-2">
+                        Buscar
+                    </button>
+                    <a class="btn btn-outline-secondary"
+                       th:href="@{/empleado/pedidos}">
+                        Limpiar
+                    </a>
+                </div>
+            </div>
+        </form>
+
+        <a class="btn btn-primary mb-3 mr-2"
+           th:href="@{/empleado/pedidos/nuevo}">
+            Nuevo pedido
+        </a>
+
+        <a class="btn btn-outline-secondary mb-3"
+           th:href="@{/empleado/pedidos/cierre}">
+            Cierre de caja de hoy
+        </a>
+
+        <p class="text-muted" th:if="${#lists.isEmpty(pedidos)}">
+            No se encontraron pedidos con esos filtros.
+        </p>
 
         <div class="card" th:unless="${#lists.isEmpty(pedidos)}">
             <div class="table-responsive">
                 <table class="table mb-0">
                     <thead>
-                        <tr>
-                            <th>Pedido</th>
-                            <th>Platos</th>
-                            <th class="text-right">Total</th>
-                            <th></th>
-                        </tr>
+                    <tr>
+                        <th>Pedido</th>
+                        <th>Fecha</th>
+                        <th>Platos</th>
+                        <th class="text-right">Total</th>
+                        <th></th>
+                    </tr>
                     </thead>
+
                     <tbody>
-                        <tr th:each="p : ${pedidos}" th:classappend="${creado != null and p.id == creado} ? 'table-success'">
-                            <td th:text="'#' + ${p.id}">#1</td>
-                            <td>
-                                <span th:each="d, st : ${p.detalles}"
-                                      th:text="${d.cantidad} + ' × ' + ${d.plato.nombre} + (${st.last} ? '' : ', ')">1 × Plato</span>
-                            </td>
-                            <td class="text-right" th:text="'$ ' + ${#numbers.formatDecimal(p.total, 1, 'POINT', 2, 'COMMA')}">$ 0,00</td>
-                            <td class="text-right">
-                                <!-- El mensaje va en un data-*: Thymeleaf no deja armar texto dentro de onsubmit -->
-                                <form method="post" th:action="@{/empleado/pedidos/{id}/anular(id=${p.id})}"
-                                      th:data-mensaje="'¿Anular el pedido #' + ${p.id} + '? Se borra y deja de contar en la caja.'"
-                                      onsubmit="return confirm(this.dataset.mensaje)">
-                                    <button type="submit" class="btn btn-sm btn-outline-danger">Anular</button>
-                                </form>
-                            </td>
-                        </tr>
+                    <tr th:each="p : ${pedidos}"
+                        th:classappend="${creado != null and p.id == creado} ? 'table-success'">
+                        <td th:text="'#' + ${p.id}">#1</td>
+                        <td th:text="${#temporals.format(p.fecha, 'dd/MM/yyyy')}">
+                            01/01/2026
+                        </td>
+                        <td>
+                            <span th:each="d, st : ${p.detalles}"
+                                  th:text="${d.cantidad} + ' × ' + ${d.plato.nombre} + (${st.last} ? '' : ', ')">
+                                1 × Plato
+                            </span>
+                        </td>
+                        <td class="text-right"
+                            th:text="'$ ' + ${#numbers.formatDecimal(p.total, 1, 'POINT', 2, 'COMMA')}">
+                            $ 0,00
+                        </td>
+                        <td class="text-right">
+                            <form method="post"
+                                  th:if="${p.fecha.equals(T(java.time.LocalDate).now())}"
+                                  th:action="@{/empleado/pedidos/{id}/anular(id=${p.id})}"
+                                  th:data-mensaje="'¿Anular el pedido #' + ${p.id} + '? Se borra y deja de contar en la caja.'"
+                                  onsubmit="return confirm(this.dataset.mensaje)">
+                                <button type="submit"
+                                        class="btn btn-sm btn-outline-danger">
+                                    Anular
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
                     </tbody>
-                    <tfoot>
-                        <tr>
-                            <th colspan="2" class="text-right"
-                                th:text="${#lists.size(pedidos)} + ' pedidos · total del día'">Total del día</th>
-                            <th class="text-right"
-                                th:text="'$ ' + ${#numbers.formatDecimal(#aggregates.sum(pedidos.![total]), 1, 'POINT', 2, 'COMMA')}">$ 0,00</th>
-                            <th></th>
-                        </tr>
-                    </tfoot>
                 </table>
             </div>
         </div>
+
+        <nav class="mt-3"
+             th:if="${pagina != null and pagina.totalPages > 1}"
+             aria-label="Paginación de pedidos">
+            <ul class="pagination">
+                <li class="page-item"
+                    th:classappend="${pagina.first} ? 'disabled'">
+                    <a class="page-link"
+                       th:href="@{/empleado/pedidos(page=${pagina.number - 1}, desde=${desde}, hasta=${hasta}, platoId=${platoId})}">
+                        Anterior
+                    </a>
+                </li>
+
+                <li class="page-item disabled">
+                    <span class="page-link"
+                          th:text="'Página ' + (${pagina.number + 1}) + ' de ' + ${pagina.totalPages}">
+                        Página 1 de 1
+                    </span>
+                </li>
+
+                <li class="page-item"
+                    th:classappend="${pagina.last} ? 'disabled'">
+                    <a class="page-link"
+                       th:href="@{/empleado/pedidos(page=${pagina.number + 1}, desde=${desde}, hasta=${hasta}, platoId=${platoId})}">
+                        Siguiente
+                    </a>
+                </li>
+            </ul>
+        </nav>
     </div>
 </main>
 

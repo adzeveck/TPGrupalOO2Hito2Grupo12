@@ -14,6 +14,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.time.LocalDate;
+import java.util.List;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import com.unla.epicentrogourmet.entities.Plato;
+
 import com.unla.epicentrogourmet.dtos.PedidoDTO;
 import com.unla.epicentrogourmet.entities.Pedido;
 import com.unla.epicentrogourmet.exceptions.ValidacionException;
@@ -34,13 +45,54 @@ public class PedidoController {
 		this.pedidoService = pedidoService;
 	}
 
-	// GET /empleado/pedidos: los pedidos de hoy de la unidad, con el aviso del que se acaba de crear o anular
+
 	@GetMapping
-	public ModelAndView pedidosDeHoy(Authentication authentication, @RequestParam(required = false) Integer creado,
-			@RequestParam(required = false) Integer anulado) {
-		ModelAndView modelAndView = listaDeHoy(authentication);
+	public ModelAndView pedidosDeHoy(
+			Authentication authentication,
+			@RequestParam(required = false) Integer creado,
+			@RequestParam(required = false) Integer anulado,
+			@RequestParam(required = false)
+			@DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate desde,
+			@RequestParam(required = false)
+			@DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate hasta,
+			@RequestParam(required = false) Integer platoId,
+			@PageableDefault(
+					size = 10,
+					sort = {"fecha", "id"},
+					direction = Sort.Direction.DESC) Pageable pageable) {
+
+		ModelAndView modelAndView =
+				new ModelAndView(ViewRouteHelper.PEDIDO_LIST);
+
 		modelAndView.addObject("creado", creado);
 		modelAndView.addObject("anulado", anulado);
+		modelAndView.addObject("desde", desde);
+		modelAndView.addObject("hasta", hasta);
+		modelAndView.addObject("platoId", platoId);
+
+		try {
+			modelAndView.addObject(
+					"unidad",
+					pedidoService.getUnidadDelCajero(authentication.getName()));
+
+			Page<Pedido> pagina = pedidoService.buscarPedidos(
+					authentication.getName(),
+					desde,
+					hasta,
+					platoId,
+					pageable);
+
+			List<Plato> platos =
+					pedidoService.getPlatosParaFiltro(authentication.getName());
+
+			modelAndView.addObject("pagina", pagina);
+			modelAndView.addObject("pedidos", pagina.getContent());
+			modelAndView.addObject("platosFiltro", platos);
+
+		} catch (ValidacionException e) {
+			modelAndView.addObject("errorGeneral", e.getMessage());
+		}
+
 		return modelAndView;
 	}
 
@@ -132,4 +184,6 @@ public class PedidoController {
 		modelAndView.addObject("errorGeneral", e.getMessage());
 		return modelAndView;
 	}
+
+
 }

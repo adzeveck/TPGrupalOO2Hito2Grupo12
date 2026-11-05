@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -195,5 +197,37 @@ public class PedidoService implements IPedidoService {
 					+ " al " + festival.getFechaFin().format(FORMATO_FECHA));
 		}
 		return unidad;
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public Page<Pedido> buscarPedidos(
+			String username,
+			LocalDate desde,
+			LocalDate hasta,
+			Integer platoId,
+			Pageable pageable) {
+
+		if (desde != null && hasta != null && desde.isAfter(hasta)) {
+			throw new ValidacionException(
+					null,
+					"La fecha desde no puede ser posterior a la fecha hasta");
+		}
+
+		UnidadDeVenta unidad = getUnidadDelCajero(username);
+
+		return pedidoRepository.buscarPorUnidadYFiltros(
+				unidad.getId(),
+				desde,
+				hasta,
+				platoId,
+				pageable);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<Plato> getPlatosParaFiltro(String username) {
+		UnidadDeVenta unidad = getUnidadDelCajero(username);
+		return platoRepository.findByUnidadIdOrderByNombreAsc(unidad.getId());
 	}
 }

@@ -286,3 +286,19 @@ footer {
         font-size: 0.9rem;
     }
 }
+
+select.form-control.plato-select {
+    height: auto;
+    min-height: 44px;
+    padding: 8px 14px;
+    line-height: 1.5;
+    box-sizing: border-box;
+}
+
+form-control plato-select{
+    height: auto;
+    min-height: 44px;
+    padding: 8px 14px;
+    line-height: 1.5;
+    box-sizing: border-box;
+}
