@@ -114,6 +114,7 @@ public class CierreLiquidacionService implements ICierreLiquidacionService {
         liquidacion.setAdicional(dto.getAdicional());
         liquidacion.setPorcentaje(dto.getPorcentaje());
         liquidacion.setTotal(dto.getTotal());
+        liquidacion.setConceptoAdicional(dto.getConceptoAdicional());
         return liquidacion;
     }
 }

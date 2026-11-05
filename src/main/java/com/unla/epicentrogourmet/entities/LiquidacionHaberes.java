@@ -47,8 +47,19 @@ public class LiquidacionHaberes {
     // El plus (categoría o antigüedad) al momento de liquidar
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal adicional;
+    // Cómo se llamaba el adicional al liquidar: "Plus por categoría" o "Antigüedad (3 años)". Es nullable
+    // para que la columna se pueda agregar aunque ya haya filas
+    @Column(length = 60)
+    private String conceptoAdicional;
+
     @Column(nullable = false)
     private Integer porcentaje;
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal total;
+
+    // Cuenta del histórico: lo que se liquidó antes de aplicar el porcentaje
+    public BigDecimal calcularSubtotal() {
+        return sueldoBase.add(adicional);
+    }
+
 }

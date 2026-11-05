@@ -15,42 +15,42 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.unla.epicentrogourmet.dtos.LiquidacionHaberesDTO;
 import com.unla.epicentrogourmet.exceptions.ValidacionException;
-import com.unla.epicentrogourmet.services.ILiquidacionPersonalService;
+import com.unla.epicentrogourmet.services.ILiquidacionCerradaService;
 import com.unla.epicentrogourmet.services.IReciboService;
 
-// El responsable descarga el recibo de un empleado de su unidad. El PDF lo arma el mismo ReciboService
-// que usa el empleado para su propio recibo
+// El responsable descarga el recibo de una liquidación cerrada de su unidad. El PDF lo arma el mismo
+// ReciboService que usa el empleado
 @Controller
-@RequestMapping("/responsable/liquidaciones/{empleadoId}/recibo")
+@RequestMapping("/responsable/liquidaciones/{liquidacionId}/recibo")
 @PreAuthorize("hasRole('RESPONSABLE')")
 public class ReciboPersonalController {
 
-    private final ILiquidacionPersonalService liquidacionPersonalService;
+    private final ILiquidacionCerradaService liquidacionCerradaService;
     private final IReciboService reciboService;
 
-    public ReciboPersonalController(ILiquidacionPersonalService liquidacionPersonalService,
+    public ReciboPersonalController(ILiquidacionCerradaService liquidacionCerradaService,
                                     IReciboService reciboService) {
-        this.liquidacionPersonalService = liquidacionPersonalService;
+        this.liquidacionCerradaService = liquidacionCerradaService;
         this.reciboService = reciboService;
     }
 
-    // GET /responsable/liquidaciones/{empleadoId}/recibo
+    // GET /responsable/liquidaciones/{liquidacionId}/recibo
     @GetMapping
-    public ResponseEntity<byte[]> descargar(@PathVariable Integer empleadoId, Authentication authentication) {
+    public ResponseEntity<byte[]> descargar(@PathVariable Integer liquidacionId, Authentication authentication) {
         try {
-            LiquidacionHaberesDTO liquidacion = liquidacionPersonalService
-                    .calcularDeEmpleado(authentication.getName(), empleadoId);
+            LiquidacionHaberesDTO liquidacion = liquidacionCerradaService
+                    .obtenerDeLaUnidad(authentication.getName(), liquidacionId);
             byte[] pdf = reciboService.generarPdf(liquidacion);
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION,
-                            "attachment; filename=\"recibo-sueldo-" + liquidacion.getDni() + ".pdf\"")
+                            "attachment; filename=\"recibo-sueldo-" + liquidacion.getDni() + "-"
+                                    + liquidacion.getFechaFin() + ".pdf\"")
                     .contentType(MediaType.APPLICATION_PDF)
                     .body(pdf);
         } catch (ValidacionException e) {
-            // Empleado de otra unidad, inexistente o dado de baja: no hay recibo.
-            // Vuelve a la planilla y el parámetro le avisa al responsable
+            // No existe o es de otra unidad: no hay recibo, vuelve a la lista, que muestra el aviso
             return ResponseEntity.status(HttpStatus.FOUND)
-                    .location(URI.create("/responsable/liquidaciones?reciboError"))
+                    .location(URI.create("/responsable/liquidaciones/cerradas?reciboError"))
                     .build();
         }
     }

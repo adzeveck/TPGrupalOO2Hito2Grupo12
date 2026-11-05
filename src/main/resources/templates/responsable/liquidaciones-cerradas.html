@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head}"></head>
+<body>
+<nav th:replace="~{layout :: navbar}"></nav>
+
+<main class="container py-4">
+  <h1 class="mb-1">Liquidaciones cerradas</h1>
+  <p class="text-muted">Las que ya se confirmaron en el cierre. El recibo en PDF sale de cada una.</p>
+
+  <div class="alert alert-warning" th:if="${param.reciboError != null}">
+    No se pudo generar el recibo: la liquidación no existe o no pertenece a tu unidad.
+  </div>
+  <div class="alert alert-warning" th:if="${errorGeneral != null}" th:text="${errorGeneral}">Mensaje</div>
+
+  <div class="alert alert-info" th:if="${errorGeneral == null and #lists.isEmpty(liquidaciones)}">
+    Todavía no cerraste ninguna liquidación. Se cierran desde "Cierre de liquidación por períodos".
+  </div>
+
+  <div class="card" th:if="${errorGeneral == null and not #lists.isEmpty(liquidaciones)}">
+    <div class="table-responsive">
+      <table class="table mb-0">
+        <thead>
+        <tr>
+          <th>Empleado</th>
+          <th>Puesto</th>
+          <th>Período</th>
+          <th class="text-right">Días</th>
+          <th class="text-right">%</th>
+          <th class="text-right">Total</th>
+          <th>Cerrada el</th>
+          <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="l : ${liquidaciones}">
+          <td th:text="${l.empleado}">Nombre Apellido</td>
+          <td th:text="${l.puesto}">Cocinero</td>
+          <td th:text="${#temporals.format(l.fechaInicio, 'dd/MM/yyyy')} + ' al ' + ${#temporals.format(l.fechaFin, 'dd/MM/yyyy')}">01/10/2026 al 15/10/2026</td>
+          <td class="text-right" th:text="${l.dias}">15</td>
+          <td class="text-right" th:text="${l.porcentaje} + '%'">50%</td>
+          <td class="text-right"><strong th:text="'$ ' + ${#numbers.formatDecimal(l.total, 1, 'POINT', 2, 'COMMA')}">$ 0,00</strong></td>
+          <td th:text="${#temporals.format(l.fechaCierre, 'dd/MM/yyyy')}">04/11/2026</td>
+          <td class="text-right">
+            <a class="btn btn-sm btn-outline-primary"
+               th:href="@{/responsable/liquidaciones/{id}/recibo(id=${l.liquidacionId})}">PDF</a>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <a class="btn btn-primary mt-3" th:href="@{/responsable/liquidaciones/cierre}">Cierre de liquidación</a>
+  <a class="btn btn-secondary mt-3" th:href="@{/responsable/index}">Volver</a>
+</main>
+
+<footer th:replace="~{layout :: footer}"></footer>
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>
