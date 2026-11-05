@@ -7,32 +7,27 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.unla.epicentrogourmet.exceptions.ValidacionException;
 import com.unla.epicentrogourmet.helpers.ViewRouteHelper;
-import com.unla.epicentrogourmet.services.ILiquidacionService;
+import com.unla.epicentrogourmet.services.ILiquidacionCerradaService;
 
-// El empleado ve su propia liquidación: el sueldo se calcula con el username del usuario logueado,
-// así que nadie puede pedir el de otro empleado
+// El empleado ve solo sus liquidaciones cerradas: se buscan con el username del usuario logueado,
+// así que nadie puede ver las de otro empleado
 @Controller
 @RequestMapping("/empleado/sueldo")
 @PreAuthorize("hasRole('EMPLEADO')")
 public class LiquidacionController {
 
-	private final ILiquidacionService liquidacionService;
+	private final ILiquidacionCerradaService liquidacionCerradaService;
 
-	public LiquidacionController(ILiquidacionService liquidacionService) {
-		this.liquidacionService = liquidacionService;
+	public LiquidacionController(ILiquidacionCerradaService liquidacionCerradaService) {
+		this.liquidacionCerradaService = liquidacionCerradaService;
 	}
 
 	// GET /empleado/sueldo
 	@GetMapping
 	public ModelAndView verSueldo(Authentication authentication) {
 		ModelAndView modelAndView = new ModelAndView(ViewRouteHelper.SUELDO);
-		try {
-			modelAndView.addObject("liquidacion", liquidacionService.calcular(authentication.getName()));
-		} catch (ValidacionException e) {
-			modelAndView.addObject("errorGeneral", e.getMessage());
-		}
+		modelAndView.addObject("liquidaciones", liquidacionCerradaService.listarDelEmpleado(authentication.getName()));
 		return modelAndView;
 	}
 }

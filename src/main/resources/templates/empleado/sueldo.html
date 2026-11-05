@@ -7,71 +7,57 @@
 <main class="container py-4">
     <h1 class="mb-1">Mi liquidación de sueldo</h1>
 
-    <div th:if="${errorGeneral != null}">
-        <div class="alert alert-warning mt-3" th:text="${errorGeneral}">Mensaje</div>
-        <a class="btn btn-secondary" th:href="@{/empleado/index}">Volver</a>
+    <div class="alert alert-warning mt-3" th:if="${param.reciboError != null}">
+        No se pudo generar el recibo: la liquidación no existe o no es tuya.
     </div>
 
-    <div th:if="${errorGeneral == null}">
+    <div class="alert alert-info mt-3" th:if="${#lists.isEmpty(liquidaciones)}">
+        Todavía no tenés liquidaciones cerradas. Cuando tu responsable cierre una liquidación,
+        la vas a ver acá y vas a poder descargar el recibo.
+    </div>
+
+    <div th:unless="${#lists.isEmpty(liquidaciones)}">
         <p class="text-muted mb-4">
-            <span th:text="${liquidacion.festival}">Festival</span> ·
-            <span th:text="${liquidacion.unidad}">Unidad</span>
+            <span th:text="${liquidaciones[0].festival}">Festival</span> ·
+            <span th:text="${liquidaciones[0].unidad}">Unidad</span> ·
+            <span th:text="${liquidaciones[0].puesto}">Puesto</span>
         </p>
 
-        <div class="card mb-4">
-            <div class="card-header">Datos del empleado</div>
-            <ul class="list-group list-group-flush">
-                <li class="list-group-item"><strong>Empleado:</strong> <span th:text="${liquidacion.empleado}">Nombre Apellido</span></li>
-                <li class="list-group-item"><strong>DNI:</strong> <span th:text="${liquidacion.dni}">30111222</span></li>
-                <li class="list-group-item"><strong>Puesto:</strong> <span th:text="${liquidacion.puesto}">Cocinero</span></li>
-                <li class="list-group-item">
-                    <strong>Período del festival:</strong>
-                    <span th:text="${#temporals.format(liquidacion.fechaInicio, 'dd/MM/yyyy')} + ' al ' + ${#temporals.format(liquidacion.fechaFin, 'dd/MM/yyyy')}">01/10/2026 al 15/11/2026</span>
-                    (<span th:text="${liquidacion.dias}">46</span> días)
-                </li>
-            </ul>
-        </div>
-
         <div class="card">
+            <div class="card-header">Liquidaciones cerradas</div>
             <div class="table-responsive">
                 <table class="table mb-0">
                     <thead>
-                        <tr>
-                            <th>Concepto</th>
-                            <th class="text-right">Monto</th>
-                        </tr>
+                    <tr>
+                        <th>Período</th>
+                        <th class="text-right">Días</th>
+                        <th class="text-right">Subtotal</th>
+                        <th class="text-right">%</th>
+                        <th class="text-right">Total</th>
+                        <th>Cerrada el</th>
+                        <th></th>
+                    </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>Sueldo base</td>
-                            <td class="text-right" th:text="'$ ' + ${#numbers.formatDecimal(liquidacion.sueldoBase, 1, 'POINT', 2, 'COMMA')}">$ 0,00</td>
-                        </tr>
-                        <tr>
-                            <td th:text="${liquidacion.conceptoAdicional}">Plus</td>
-                            <td class="text-right" th:text="'$ ' + ${#numbers.formatDecimal(liquidacion.adicional, 1, 'POINT', 2, 'COMMA')}">$ 0,00</td>
-                        </tr>
-                        <tr>
-                            <th>Subtotal</th>
-                            <th class="text-right" th:text="'$ ' + ${#numbers.formatDecimal(liquidacion.subtotal, 1, 'POINT', 2, 'COMMA')}">$ 0,00</th>
-                        </tr>
-                        <tr>
-                            <td th:text="'Liquidación por ' + ${liquidacion.dias} + ' días: ' + ${liquidacion.porcentaje} + '% del subtotal'">Liquidación por días</td>
-                            <td></td>
-                        </tr>
+                    <tr th:each="l : ${liquidaciones}">
+                        <td th:text="${#temporals.format(l.fechaInicio, 'dd/MM/yyyy')} + ' al ' + ${#temporals.format(l.fechaFin, 'dd/MM/yyyy')}">01/10/2026 al 15/10/2026</td>
+                        <td class="text-right" th:text="${l.dias}">15</td>
+                        <td class="text-right" th:text="'$ ' + ${#numbers.formatDecimal(l.subtotal, 1, 'POINT', 2, 'COMMA')}">$ 0,00</td>
+                        <td class="text-right" th:text="${l.porcentaje} + '%'">50%</td>
+                        <td class="text-right"><strong th:text="'$ ' + ${#numbers.formatDecimal(l.total, 1, 'POINT', 2, 'COMMA')}">$ 0,00</strong></td>
+                        <td th:text="${#temporals.format(l.fechaCierre, 'dd/MM/yyyy')}">04/11/2026</td>
+                        <td class="text-right">
+                            <a class="btn btn-sm btn-outline-primary"
+                               th:href="@{/empleado/sueldo/{id}/recibo(id=${l.liquidacionId})}">Recibo PDF</a>
+                        </td>
+                    </tr>
                     </tbody>
-                    <tfoot>
-                        <tr class="table-success">
-                            <th>Total a cobrar</th>
-                            <th class="text-right" th:text="'$ ' + ${#numbers.formatDecimal(liquidacion.total, 1, 'POINT', 2, 'COMMA')}">$ 0,00</th>
-                        </tr>
-                    </tfoot>
                 </table>
             </div>
         </div>
-
-        <a class="btn btn-primary mt-3 mr-2" th:href="@{/empleado/sueldo/recibo}">Descargar recibo en PDF</a>
-        <a class="btn btn-secondary mt-3" th:href="@{/empleado/index}">Volver</a>
     </div>
+
+    <a class="btn btn-secondary mt-3" th:href="@{/empleado/index}">Volver</a>
 </main>
 
 <footer th:replace="~{layout :: footer}"></footer>

@@ -6,10 +6,6 @@
 
 <main class="container py-4">
   <h1 class="mb-1">Liquidación de haberes del personal</h1>
-  <div class="alert alert-warning mt-3" th:if="${param.reciboError != null}">
-    No se pudo generar el recibo: el empleado no pertenece a tu   unidad o está dado de baja.
-  </div>
-  <div th:if="${errorGeneral != null}">
     <div class="alert alert-warning mt-3" th:text="${errorGeneral}">Mensaje</div>
     <a class="btn btn-secondary" th:href="@{/responsable/index}">Volver</a>
   </div>
@@ -36,7 +32,6 @@
             <th class="text-right">Subtotal</th>
             <th class="text-right">%</th>
             <th class="text-right">Total</th>
-            <th class="text-right">Recibo</th>
           </tr>
           </thead>
           <tbody>
@@ -51,24 +46,19 @@
             <td class="text-right" th:text="'$ ' + ${#numbers.formatDecimal(l.subtotal, 1, 'POINT', 2, 'COMMA')}">$ 0,00</td>
             <td class="text-right" th:text="${l.porcentaje} + '%'">200%</td>
             <td class="text-right"><strong th:text="'$ ' + ${#numbers.formatDecimal(l.total, 1, 'POINT', 2, 'COMMA')}">$ 0,00</strong></td>
-            <td class="text-right">
-              <a class="btn btn-sm btn-outline-primary"
-                 th:href="@{/responsable/liquidaciones/{id}/recibo(id=${l.empleadoId})}">PDF</a>
-            </td>
           </tr>
           </tbody>
           <tfoot>
           <tr class="table-success">
             <th colspan="6">Total de la planilla</th>
             <th class="text-right" th:text="'$ ' + ${#numbers.formatDecimal(planilla.totalPlanilla, 1, 'POINT', 2, 'COMMA')}">$ 0,00</th>
-            <th></th>
           </tr>
           </tfoot>
         </table>
       </div>
     </div>
     <p class="text-muted small mt-2">Los empleados dados de baja no cobran y no figuran en la planilla.</p>
-
+    <a class="btn btn-outline-primary mt-2" th:href="@{/responsable/liquidaciones/cerradas}">Ver liquidaciones cerradas</a>
     <a class="btn btn-secondary mt-2" th:href="@{/responsable/index}">Volver</a>
   </div>
 </main>
