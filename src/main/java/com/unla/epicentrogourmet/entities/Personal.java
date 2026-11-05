@@ -119,8 +119,13 @@ public abstract class Personal {
 	}
 
 	// Lo que le corresponde cobrar en total desde su primer día hasta una fecha: la escala se aplica a los
-	// días acumulados y no a cada tramo. Cerrando en uno o en varios tramos, la suma de lo pagado da igual
+	// días acumulados y no a cada tramo. Cerrando en uno o en varios tramos, la suma de lo pagado da igual.
+	// Si a esa fecha todavía no había empezado a trabajar, no le corresponde nada
 	public BigDecimal calcularSueldoAcumulado(Festival festival, LocalDate hasta) {
-		return calcularSueldo(festival.getCosto(), hasta, calcularDiasAcumulados(festival, hasta));
+		long dias = calcularDiasAcumulados(festival, hasta);
+		if (dias <= 0) {
+			return BigDecimal.ZERO;
+		}
+		return calcularSueldo(festival.getCosto(), hasta, dias);
 	}
 }

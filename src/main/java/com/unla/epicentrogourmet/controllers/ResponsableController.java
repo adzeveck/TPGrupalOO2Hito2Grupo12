@@ -11,8 +11,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.unla.epicentrogourmet.entities.Festival;
 import com.unla.epicentrogourmet.entities.FoodTruck;
 import com.unla.epicentrogourmet.entities.UnidadDeVenta;
+import com.unla.epicentrogourmet.enums.EstadoFestival;
 import com.unla.epicentrogourmet.exceptions.ValidacionException;
 import com.unla.epicentrogourmet.helpers.ViewRouteHelper;
 import com.unla.epicentrogourmet.services.IRentabilidadService;
@@ -97,7 +99,7 @@ public class ResponsableController {
 		return modelAndView;
 	}
 
-	// Rentabilidad neta: festival completo o período seleccionado.
+	// Rentabilidad neta: por defecto del inicio del festival a hoy, o el período seleccionado.
 	@GetMapping("/rentabilidad")
 	public ModelAndView rentabilidad(Authentication authentication,
 									 @RequestParam(required = false)
@@ -106,8 +108,10 @@ public class ResponsableController {
 									 @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate hasta) {
 		ModelAndView modelAndView = new ModelAndView(ViewRouteHelper.RESPONSABLE_RENTABILIDAD);
 		try {
-			modelAndView.addObject("festival",
-					unidadDeVentaService.getDelResponsable(authentication.getName()).getFestival());
+			Festival festival = unidadDeVentaService.getDelResponsable(authentication.getName()).getFestival();
+			modelAndView.addObject("festival", festival);
+			modelAndView.addObject("estado",
+					EstadoFestival.de(festival.getFechaInicio(), festival.getFechaFin(), LocalDate.now()));
 			modelAndView.addObject("desde", desde);
 			modelAndView.addObject("hasta", hasta);
 			modelAndView.addObject("rentabilidad",

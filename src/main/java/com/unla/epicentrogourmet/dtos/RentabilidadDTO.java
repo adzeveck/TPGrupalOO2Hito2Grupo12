@@ -20,18 +20,19 @@ public class RentabilidadDTO {
 	private LocalDate hasta;
 	private long dias;              // días del período consultado
 	private long diasFestival;      // días que dura el festival
+	private long diasTranscurridos; // días del festival que ya pasaron
 
 	private BigDecimal ventas;      // suma de los totales de los pedidos del período
 	private BigDecimal costoPlatos; // costo de producción de los platos vendidos
 	private BigDecimal gananciaBruta;
-	private BigDecimal sueldos;     // proporcional a los días del período
+	private BigDecimal sueldos;     // la misma cuenta que el cierre: escala sobre los días acumulados
 	private BigDecimal canon;       // proporcional a los días del período
 	private BigDecimal rentabilidadNeta;
 
-	// La liquidación de cada empleado activo de la unidad (por el festival completo)
+	// La liquidación de cada empleado activo de la unidad en el período
 	private List<LiquidacionHaberesDTO> liquidaciones = new ArrayList<>();
 
-	// true si el período es todo el festival: sueldos y canon van completos
+	// true si el período es todo el festival: el canon va completo
 	public boolean isFestivalCompleto() {
 		return dias == diasFestival;
 	}

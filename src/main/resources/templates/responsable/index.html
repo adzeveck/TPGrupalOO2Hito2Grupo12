@@ -122,7 +122,7 @@
                             <div class="text-muted small text-uppercase">Sueldos a liquidar</div>
                             <div class="h4 mb-1" th:if="${tablero.sueldosALiquidar != null}"
                                  th:text="'$ ' + ${#numbers.formatDecimal(tablero.sueldosALiquidar, 1, 'POINT', 2, 'COMMA')}">$ 0,00</div>
-                            <small class="text-muted" th:if="${tablero.sueldosALiquidar != null}">Planilla del personal activo</small>
+                            <small class="text-muted" th:if="${tablero.sueldosALiquidar != null}">Planilla del festival completo</small>
                             <div class="text-muted" th:if="${tablero.sueldosALiquidar == null}">Sin datos</div>
                         </div>
                         <div class="card-footer bg-transparent">
@@ -194,7 +194,7 @@
                     Recaudación por día
                 </a>
                 <a class="list-group-item list-group-item-action" th:href="@{/responsable/rentabilidad}">
-                    Rentabilidad neta (total y entre dos fechas)
+                    Rentabilidad neta (a la fecha y entre dos fechas)
                 </a>
                 <a class="list-group-item list-group-item-action" th:href="@{/responsable/liquidaciones}">
                     Liquidación de haberes del personal

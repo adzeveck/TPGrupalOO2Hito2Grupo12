@@ -39,15 +39,21 @@ public class RentabilidadService implements IRentabilidadService {
 		this.liquidacionService = liquidacionService;
 	}
 
-	// (ventas - costo de los platos) - sueldos - canon. El festival completo es el caso particular
-	// en que el período va del primer al último día: sueldos y canon entran enteros
+	// (ventas - costo de los platos) - sueldos - canon. Sin fechas va del primer día del festival a hoy
+	// (si ya terminó, hasta su último día). Antes de que empiece no hay nada que medir
 	@Override
 	@Transactional(readOnly = true)
 	public RentabilidadDTO calcular(String username, LocalDate desde, LocalDate hasta) {
 		UnidadDeVenta unidad = unidadDeVentaService.getDelResponsable(username);
 		Festival festival = unidad.getFestival();
+		LocalDate hoy = LocalDate.now();
+		if (hoy.isBefore(festival.getFechaInicio())) {
+			throw new ValidacionException(null, "El festival empieza el "
+					+ festival.getFechaInicio().format(FORMATO_FECHA) + ": todavía no hay rentabilidad para calcular");
+		}
+		LocalDate ultimoDiaTranscurrido = hoy.isAfter(festival.getFechaFin()) ? festival.getFechaFin() : hoy;
 		LocalDate inicio = desde == null ? festival.getFechaInicio() : desde;
-		LocalDate fin = hasta == null ? festival.getFechaFin() : hasta;
+		LocalDate fin = hasta == null ? ultimoDiaTranscurrido : hasta;
 		validarPeriodo(festival, inicio, fin);
 
 		RentabilidadDTO dto = new RentabilidadDTO();
@@ -57,22 +63,26 @@ public class RentabilidadService implements IRentabilidadService {
 		dto.setHasta(fin);
 		dto.setDias(ChronoUnit.DAYS.between(inicio, fin) + 1);
 		dto.setDiasFestival(ChronoUnit.DAYS.between(festival.getFechaInicio(), festival.getFechaFin()) + 1);
+		dto.setDiasTranscurridos(ChronoUnit.DAYS.between(festival.getFechaInicio(), ultimoDiaTranscurrido) + 1);
 
 		// Ventas y costo de platos: solo los pedidos del período
 		dto.setVentas(ceroSiNulo(pedidoRepository.sumVentas(unidad.getId(), inicio, fin)));
 		dto.setCostoPlatos(ceroSiNulo(pedidoRepository.sumCostoPlatos(unidad.getId(), inicio, fin)));
 		dto.setGananciaBruta(dto.getVentas().subtract(dto.getCostoPlatos()));
 
-		// Sueldos: la liquidación de cada empleado activo, con la misma cuenta que ve el empleado
-		BigDecimal sueldosFestival = BigDecimal.ZERO;
+		// Sueldos: la misma cuenta que el cierre de liquidación. La escala va por bloques de días acumulados,
+		// así que el sueldo de un período es lo que corresponde al terminar menos lo que correspondía antes
+		// de empezar. Si esos días no entran en un bloque nuevo, el período da 0
+		BigDecimal sueldos = BigDecimal.ZERO;
 		for (Personal empleado : personalRepository.findByUnidadIdAndUsuarioEnabledTrue(unidad.getId())) {
-			LiquidacionHaberesDTO liquidacion = liquidacionService.calcular(empleado);
+			BigDecimal antesDelPeriodo = empleado.calcularSueldoAcumulado(festival, inicio.minusDays(1));
+			LiquidacionHaberesDTO liquidacion = liquidacionService.calcularCierre(empleado, inicio, fin, antesDelPeriodo);
 			dto.getLiquidaciones().add(liquidacion);
-			sueldosFestival = sueldosFestival.add(liquidacion.getTotal());
+			sueldos = sueldos.add(liquidacion.getTotal());
 		}
-		// Sueldos y canon se pagan por el festival entero: en un período más corto se toma la parte
-		// proporcional a sus días, para comparar con las ventas de esos mismos días
-		dto.setSueldos(proporcional(sueldosFestival, dto.getDias(), dto.getDiasFestival()));
+		dto.setSueldos(sueldos);
+		// El canon se paga por el festival entero: en un período más corto se toma la parte proporcional a
+		// sus días, para comparar con las ventas de esos mismos días
 		dto.setCanon(proporcional(unidad.calcularCanon(festival.getCosto()), dto.getDias(), dto.getDiasFestival()));
 
 		dto.setRentabilidadNeta(dto.getGananciaBruta().subtract(dto.getSueldos()).subtract(dto.getCanon()));

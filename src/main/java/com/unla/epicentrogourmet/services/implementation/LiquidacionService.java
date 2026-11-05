@@ -36,7 +36,7 @@ public class LiquidacionService implements ILiquidacionService {
 	}
 
 	// La misma cuenta para cualquier empleado, no solo el logueado: la usan la liquidación del
-	// personal de una unidad y la rentabilidad neta (que resta los sueldos). Cubre el festival completo
+	// personal de una unidad. Cubre el festival completo
 	@Override
 	@Transactional(readOnly = true)
 	public LiquidacionHaberesDTO calcular(Personal empleado) {

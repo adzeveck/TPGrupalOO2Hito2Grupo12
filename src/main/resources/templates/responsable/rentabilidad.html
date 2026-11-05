@@ -8,24 +8,29 @@
     <h1 class="mb-1">Rentabilidad neta</h1>
     <p class="text-muted mb-4">Lo que ganó tu unidad: ventas menos el costo de los platos, los sueldos y el canon.</p>
 
-    <!-- Sin fechas se calcula el festival completo; con fechas, ese período -->
-    <form class="card card-body mb-4" method="get" th:action="@{/responsable/rentabilidad}" th:if="${festival != null}">
+    <!-- Sin fechas se calcula del inicio del festival a hoy; con fechas, ese período -->
+    <form class="card card-body mb-4" method="get" th:action="@{/responsable/rentabilidad}"
+          th:if="${estado != null and estado.name() != 'POR_VENIR'}">
         <div class="form-row align-items-end">
-            <div class="form-group col-md-4 mb-md-0">
+            <div class="form-group col-md-3 mb-md-0">
                 <label for="desde">Desde</label>
                 <input type="date" class="form-control" id="desde" name="desde"
-                       th:value="${desde}" th:min="${festival.fechaInicio}" th:max="${festival.fechaFin}"/>
+                       th:value="${rentabilidad != null ? rentabilidad.desde : desde}" th:min="${festival.fechaInicio}" th:max="${festival.fechaFin}"/>
             </div>
-            <div class="form-group col-md-4 mb-md-0">
+            <div class="form-group col-md-3 mb-md-0">
                 <label for="hasta">Hasta</label>
                 <input type="date" class="form-control" id="hasta" name="hasta"
-                       th:value="${hasta}" th:min="${festival.fechaInicio}" th:max="${festival.fechaFin}"/>
+                       th:value="${rentabilidad != null ? rentabilidad.hasta : hasta}" th:min="${festival.fechaInicio}" th:max="${festival.fechaFin}"/>
             </div>
             <div class="col-md-2">
                 <button type="submit" class="btn btn-primary btn-block">Calcular</button>
             </div>
+            <div class="col-md-2" th:if="${estado.name() == 'EN_CURSO'}">
+                <a class="btn btn-outline-secondary btn-block" th:href="@{/responsable/rentabilidad}">A la fecha</a>
+            </div>
             <div class="col-md-2">
-                <a class="btn btn-outline-secondary btn-block" th:href="@{/responsable/rentabilidad}">Festival completo</a>
+                <a class="btn btn-outline-secondary btn-block"
+                   th:href="@{/responsable/rentabilidad(desde=${festival.fechaInicio},hasta=${festival.fechaFin})}">Festival completo</a>
             </div>
         </div>
     </form>
@@ -39,7 +44,10 @@
             <span th:text="${r.unidad}">Unidad</span> · <span th:text="${r.festival}">Festival</span> ·
             del <span th:text="${#temporals.format(r.desde, 'dd/MM/yyyy')}">01/10/2026</span>
             al <span th:text="${#temporals.format(r.hasta, 'dd/MM/yyyy')}">15/11/2026</span>
-            (<span th:text="${r.dias}">46</span> de <span th:text="${r.diasFestival}">46</span> días)
+            (<span th:text="${r.dias + (r.dias == 1 ? ' día' : ' días')}">35 días</span>)
+            <br/>
+            Días transcurridos del festival: <strong th:text="${r.diasTranscurridos}">35</strong>
+            de <span th:text="${r.diasFestival}">46</span>
         </p>
 
         <div class="card mb-4">
@@ -57,8 +65,7 @@
                     <span th:text="'$ ' + ${#numbers.formatDecimal(r.gananciaBruta, 1, 'POINT', 2, 'COMMA')}">$ 0,00</span>
                 </li>
                 <li class="list-group-item d-flex justify-content-between">
-                    <span>− Sueldos <small class="text-muted" th:unless="${r.festivalCompleto}"
-                                          th:text="'(proporcional a ' + ${r.dias} + ' de ' + ${r.diasFestival} + ' días)'">(proporcional)</small></span>
+                    <span>− Sueldos <small class="text-muted">(por días acumulados, como en el cierre)</small></span>
                     <span th:text="'$ ' + ${#numbers.formatDecimal(r.sueldos, 1, 'POINT', 2, 'COMMA')}">$ 0,00</span>
                 </li>
                 <li class="list-group-item d-flex justify-content-between">
@@ -75,7 +82,7 @@
         </div>
 
         <div class="card">
-            <div class="card-header">Sueldos del personal activo (por el festival completo)</div>
+            <div class="card-header">Sueldos del personal activo en el período</div>
             <p class="card-body text-muted mb-0" th:if="${#lists.isEmpty(r.liquidaciones)}">La unidad no tiene personal activo.</p>
             <div class="table-responsive" th:unless="${#lists.isEmpty(r.liquidaciones)}">
                 <table class="table mb-0">
@@ -83,19 +90,29 @@
                         <tr>
                             <th>Empleado</th>
                             <th>Puesto</th>
-                            <th class="text-right">Total a cobrar</th>
+                            <th class="text-right">Acumulado</th>
+                            <th class="text-right">Corresponde al final</th>
+                            <th class="text-right">Antes del período</th>
+                            <th class="text-right">Sueldo del período</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr th:each="l : ${r.liquidaciones}">
                             <td th:text="${l.empleado}">Nombre Apellido</td>
                             <td th:text="${l.puesto}">Puesto</td>
+                            <td class="text-right" th:text="${l.diasAcumulados > 0 ? l.diasAcumulados + ' d · ' + l.porcentaje + '%' : '-'}">35 d · 150%</td>
+                            <td class="text-right" th:text="'$ ' + ${#numbers.formatDecimal(l.corresponde, 1, 'POINT', 2, 'COMMA')}">$ 0,00</td>
+                            <td class="text-right" th:text="'$ ' + ${#numbers.formatDecimal(l.yaPagado, 1, 'POINT', 2, 'COMMA')}">$ 0,00</td>
                             <td class="text-right" th:text="'$ ' + ${#numbers.formatDecimal(l.total, 1, 'POINT', 2, 'COMMA')}">$ 0,00</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
         </div>
+        <p class="text-muted small mt-2" th:unless="${#lists.isEmpty(r.liquidaciones)}">
+            La escala se aplica a los días acumulados de cada empleado. Un sueldo en $ 0,00 es normal: esos días
+            caen en un bloque de la escala que ya se contó antes del período.
+        </p>
     </div>
 
     <a class="btn btn-link px-0 mt-3" th:href="@{/responsable/index}">Volver al panel</a>
