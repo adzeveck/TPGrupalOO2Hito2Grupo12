@@ -31,8 +31,14 @@ public interface IPedidoService {
 	// Los pedidos de hoy de la unidad del cajero
 	List<Pedido> getPedidosDeHoy(String username);
 
-	// Cierre de caja: cantidad de pedidos, total y unidades por plato de hoy
+	// Cierre de caja: cantidad de pedidos, total y unidades por plato de hoy, y si ya se cerró
 	CierreCajaDTO getCierreDeCaja(String username);
+
+	// Guarda el cierre de caja de hoy: desde ese momento no se cargan ni se anulan pedidos
+	void cerrarCaja(String username);
+
+	// true si la unidad del empleado ya cerró la caja de hoy (false si no tiene unidad)
+	boolean isCajaCerrada(String username);
 
 	// Borra un pedido de hoy de la unidad del cajero, para corregir un error de carga
 	void anular(String username, Integer pedidoId);

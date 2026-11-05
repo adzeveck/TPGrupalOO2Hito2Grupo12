@@ -19,6 +19,7 @@ import com.unla.epicentrogourmet.dtos.CierreCajaDTO;
 import com.unla.epicentrogourmet.dtos.ItemPedidoDTO;
 import com.unla.epicentrogourmet.dtos.PedidoDTO;
 import com.unla.epicentrogourmet.entities.Cajero;
+import com.unla.epicentrogourmet.entities.CierreCaja;
 import com.unla.epicentrogourmet.entities.DetallePedido;
 import com.unla.epicentrogourmet.entities.Festival;
 import com.unla.epicentrogourmet.entities.Pedido;
@@ -27,6 +28,7 @@ import com.unla.epicentrogourmet.entities.Plato;
 import com.unla.epicentrogourmet.entities.UnidadDeVenta;
 import com.unla.epicentrogourmet.enums.Turno;
 import com.unla.epicentrogourmet.exceptions.ValidacionException;
+import com.unla.epicentrogourmet.repositories.ICierreCajaRepository;
 import com.unla.epicentrogourmet.repositories.IPedidoRepository;
 import com.unla.epicentrogourmet.repositories.IPersonalRepository;
 import com.unla.epicentrogourmet.repositories.IPlatoRepository;
@@ -40,12 +42,14 @@ public class PedidoService implements IPedidoService {
 	private final IPersonalRepository personalRepository;
 	private final IPlatoRepository platoRepository;
 	private final IPedidoRepository pedidoRepository;
+	private final ICierreCajaRepository cierreCajaRepository;
 
 	public PedidoService(IPersonalRepository personalRepository, IPlatoRepository platoRepository,
-			IPedidoRepository pedidoRepository) {
+			IPedidoRepository pedidoRepository, ICierreCajaRepository cierreCajaRepository) {
 		this.personalRepository = personalRepository;
 		this.platoRepository = platoRepository;
 		this.pedidoRepository = pedidoRepository;
+		this.cierreCajaRepository = cierreCajaRepository;
 	}
 
 	@Override
@@ -65,6 +69,7 @@ public class PedidoService implements IPedidoService {
 	@Transactional(readOnly = true)
 	public PedidoDTO prepararFormulario(String username) {
 		UnidadDeVenta unidad = getUnidadHabilitadaHoy(username);
+		validarCajaAbierta(unidad);
 		List<Plato> menu = platoRepository.findByUnidadIdAndActivoTrueOrderByNombre(unidad.getId());
 		if (menu.isEmpty()) {
 			throw new ValidacionException(null, "Tu unidad no tiene platos activos para vender");
@@ -79,6 +84,7 @@ public class PedidoService implements IPedidoService {
 	@Transactional
 	public Pedido registrar(String username, PedidoDTO dto) {
 		UnidadDeVenta unidad = getUnidadHabilitadaHoy(username);
+		validarCajaAbierta(unidad);
 
 		// Precio y plato salen de la base, no del formulario: lo que manda el navegador se puede adulterar
 		Map<Integer, Plato> menu = platoRepository.findByUnidadIdAndActivoTrueOrderByNombre(unidad.getId()).stream()
@@ -136,11 +142,14 @@ public class PedidoService implements IPedidoService {
 		CierreCajaDTO cierre = new CierreCajaDTO();
 		cierre.setFecha(hoy);
 		cierre.setUnidad(cajero.getUnidad().getNombreComercial());
-		cierre.setCajero(cajero.getNombre() + " " + cajero.getApellido()
-				+ " (turno " + (cajero.getTurno() == Turno.NOCHE ? "noche" : "mañana") + ")");
+		cierre.setCajero(describir(cajero));
 		cierre.setCantidadPedidos(pedidos.size());
-		// El total sale de lo que se cobró en cada pedido, no del precio actual de los platos
-		cierre.setTotal(pedidos.stream().map(Pedido::getTotal).reduce(BigDecimal.ZERO, BigDecimal::add));
+		cierre.setTotal(sumarTotales(pedidos));
+		cierreCajaRepository.findByUnidadIdAndFecha(cajero.getUnidad().getId(), hoy).ifPresent(guardado -> {
+			cierre.setCerrada(true);
+			cierre.setCerradoPor(describir(guardado.getCajero()));
+		});
+		cierre.setPuedeCerrar(!cierre.isCerrada() && hayFestivalActivo(cajero.getUnidad().getFestival()));
 
 		// Unidades vendidas por plato, sumando los renglones de todos los pedidos del día
 		Map<String, Integer> unidades = new HashMap<>();
@@ -153,6 +162,32 @@ public class PedidoService implements IPedidoService {
 				.sorted(Map.Entry.<String, Integer>comparingByValue().reversed().thenComparing(Map.Entry.comparingByKey()))
 				.forEach(renglon -> cierre.getUnidadesPorPlato().put(renglon.getKey(), renglon.getValue()));
 		return cierre;
+	}
+
+	// El cierre es de la unidad: una vez cerrada la caja, ningún cajero de la unidad carga ni anula pedidos
+	@Override
+	@Transactional
+	public void cerrarCaja(String username) {
+		Cajero cajero = getCajero(username);
+		UnidadDeVenta unidad = getUnidadHabilitadaHoy(username);
+		validarCajaAbierta(unidad);
+		LocalDate hoy = LocalDate.now();
+		List<Pedido> pedidos = pedidoRepository.findByUnidadIdAndFecha(unidad.getId(), hoy);
+
+		CierreCaja cierre = new CierreCaja();
+		cierre.setFecha(hoy);
+		cierre.setUnidad(unidad);
+		cierre.setCajero(cajero);
+		cierre.setCantidadPedidos(pedidos.size());
+		cierre.setTotal(sumarTotales(pedidos));
+		cierreCajaRepository.save(cierre);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public boolean isCajaCerrada(String username) {
+		return personalRepository.findByUsuarioUsername(username).map(Personal::getUnidad)
+				.filter(this::estaCerrada).isPresent();
 	}
 
 	// Es corregir un error de carga del día, no dar de baja un pedido histórico:
@@ -168,6 +203,7 @@ public class PedidoService implements IPedidoService {
 			throw new ValidacionException(null, "Solo se pueden anular pedidos de hoy: el pedido #" + pedido.getId()
 					+ " es del " + pedido.getFecha().format(FORMATO_FECHA));
 		}
+		validarCajaAbierta(cajero.getUnidad());
 		// cascade = ALL en Pedido.detalles: se borran también sus renglones
 		pedidoRepository.delete(pedido);
 	}
@@ -190,44 +226,11 @@ public class PedidoService implements IPedidoService {
 	private UnidadDeVenta getUnidadHabilitadaHoy(String username) {
 		UnidadDeVenta unidad = getUnidadDelCajero(username);
 		Festival festival = unidad.getFestival(); // la unidad conoce su festival (UnidadDeVenta.festival)
-		LocalDate hoy = LocalDate.now();
-		if (hoy.isBefore(festival.getFechaInicio()) || hoy.isAfter(festival.getFechaFin())) {
+		if (!hayFestivalActivo(festival)) {
 			throw new ValidacionException(null, "Hoy no hay un festival activo para tu unidad: " + festival.getNombre()
 					+ " es del " + festival.getFechaInicio().format(FORMATO_FECHA)
 					+ " al " + festival.getFechaFin().format(FORMATO_FECHA));
 		}
 		return unidad;
-	}
-
-	@Override
-	@Transactional(readOnly = true)
-	public Page<Pedido> buscarPedidos(
-			String username,
-			LocalDate desde,
-			LocalDate hasta,
-			Integer platoId,
-			Pageable pageable) {
-
-		if (desde != null && hasta != null && desde.isAfter(hasta)) {
-			throw new ValidacionException(
-					null,
-					"La fecha desde no puede ser posterior a la fecha hasta");
-		}
-
-		UnidadDeVenta unidad = getUnidadDelCajero(username);
-
-		return pedidoRepository.buscarPorUnidadYFiltros(
-				unidad.getId(),
-				desde,
-				hasta,
-				platoId,
-				pageable);
-	}
-
-	@Override
-	@Transactional(readOnly = true)
-	public List<Plato> getPlatosParaFiltro(String username) {
-		UnidadDeVenta unidad = getUnidadDelCajero(username);
-		return platoRepository.findByUnidadIdOrderByNombreAsc(unidad.getId());
 	}
 }

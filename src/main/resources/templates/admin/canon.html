@@ -18,14 +18,20 @@
                 <label for="festivalId">Festival</label>
                 <select class="form-control" id="festivalId" name="festivalId">
                     <option th:each="festival : ${festivales}" th:value="${festival.id}"
+                            th:data-unidades="${#lists.size(festival.unidades)}"
                             th:selected="${festivalId != null and festival.id == festivalId}"
                             th:text="|${festival.nombre} (${festival.temporada})|">Festival</option>
+
                 </select>
             </div>
             <div class="form-group col-md-2 mb-md-0">
                 <label for="limite">Cantidad (x)</label>
-                <input type="number" class="form-control" id="limite" name="limite" min="1" max="100"
-                       th:value="${limite}"/>
+                <input type="number" class="form-control" id="limite" name="limite" min="1"
+                       th:max="${maximo > 0 ? maximo : null}"
+                       th:value="${limite > 0 ? limite : null}"/>
+                <small class="form-text text-muted" id="ayudaLimite"
+                       th:text="${maximo > 0 ? 'Entre 1 y ' + maximo : 'Sin unidades'}">Entre 1 y 4</small>
+
             </div>
             <div class="col-md-2">
                 <button type="submit" class="btn btn-primary btn-block">Ver ranking</button>
@@ -70,5 +76,30 @@
 
 <footer th:replace="~{layout :: footer}"></footer>
 <div th:replace="~{layout :: scripts}"></div>
+
+<script>
+    // Al cambiar de festival, el máximo de la x pasa a ser la cantidad de unidades de ese festival
+    const selectFestival = document.getElementById('festivalId');
+    const campoLimite = document.getElementById('limite');
+    const ayudaLimite = document.getElementById('ayudaLimite');
+    if (selectFestival && campoLimite) {
+        selectFestival.addEventListener('change', function () {
+            const unidades = Number(this.selectedOptions[0].dataset.unidades);
+            if (unidades > 0) {
+                campoLimite.max = unidades;
+                if (!campoLimite.value || Number(campoLimite.value) > unidades) {
+                    campoLimite.value = Math.min(5, unidades);
+                }
+                ayudaLimite.textContent = 'Entre 1 y ' + unidades;
+            } else {
+                campoLimite.removeAttribute('max');
+                campoLimite.value = '';
+                ayudaLimite.textContent = 'Sin unidades';
+            }
+        });
+    }
+</script>
+
+
 </body>
 </html>

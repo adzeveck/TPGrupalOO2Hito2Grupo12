@@ -35,67 +35,10 @@
             Pedido <strong th:text="'#' + ${anulado}">#1</strong> anulado:
             ya no cuenta en la caja del día.
         </div>
+        <div class="alert alert-warning" th:if="${errorAnular != null}" th:text="${errorAnular}">Mensaje</div>
 
-        <div class="alert alert-warning"
-             th:if="${errorAnular != null}"
-             th:text="${errorAnular}">
-            No se pudo anular el pedido.
-        </div>
-
-        <form method="get"
-              th:action="@{/empleado/pedidos}"
-              class="card card-body mb-4">
-
-            <div class="form-row">
-                <div class="form-group col-md-3">
-                    <label for="desde">Fecha desde</label>
-                    <input id="desde"
-                           name="desde"
-                           type="date"
-                           class="form-control"
-                           th:value="${desde}"/>
-                </div>
-
-                <div class="form-group col-md-3">
-                    <label for="hasta">Fecha hasta</label>
-                    <input id="hasta"
-                           name="hasta"
-                           type="date"
-                           class="form-control"
-                           th:value="${hasta}"/>
-                </div>
-
-                <div class="form-group col-md-4">
-                    <label for="platoId">Plato</label>
-                    <select id="platoId"
-                            name="platoId"
-                            class="form-control plato-select">
-                        <option value="">Todos los platos</option>
-                        <option th:each="plato : ${platosFiltro}"
-                                th:value="${plato.id}"
-                                th:text="${plato.nombre}"
-                                th:selected="${platoId != null and plato.id == platoId}">
-                            Plato
-                        </option>
-                    </select>
-                </div>
-
-                <div class="form-group col-md-2 d-flex align-items-end">
-                    <button type="submit" class="btn btn-primary mr-2">
-                        Buscar
-                    </button>
-                    <a class="btn btn-outline-secondary"
-                       th:href="@{/empleado/pedidos}">
-                        Limpiar
-                    </a>
-                </div>
-            </div>
-        </form>
-
-        <a class="btn btn-primary mb-3 mr-2"
-           th:href="@{/empleado/pedidos/nuevo}">
-            Nuevo pedido
-        </a>
+        <a class="btn btn-primary mb-3 mr-2" th:href="@{/empleado/pedidos/nuevo}">Nuevo pedido</a>
+        <a class="btn btn-outline-secondary mb-3" th:href="@{/empleado/pedidos/cierre}">Cierre de caja</a>
 
         <a class="btn btn-outline-secondary mb-3"
            th:href="@{/empleado/pedidos/cierre}">
@@ -120,35 +63,22 @@
                     </thead>
 
                     <tbody>
-                    <tr th:each="p : ${pedidos}"
-                        th:classappend="${creado != null and p.id == creado} ? 'table-success'">
-                        <td th:text="'#' + ${p.id}">#1</td>
-                        <td th:text="${#temporals.format(p.fecha, 'dd/MM/yyyy')}">
-                            01/01/2026
-                        </td>
-                        <td>
-                            <span th:each="d, st : ${p.detalles}"
-                                  th:text="${d.cantidad} + ' × ' + ${d.plato.nombre} + (${st.last} ? '' : ', ')">
-                                1 × Plato
-                            </span>
-                        </td>
-                        <td class="text-right"
-                            th:text="'$ ' + ${#numbers.formatDecimal(p.total, 1, 'POINT', 2, 'COMMA')}">
-                            $ 0,00
-                        </td>
-                        <td class="text-right">
-                            <form method="post"
-                                  th:if="${p.fecha.equals(T(java.time.LocalDate).now())}"
-                                  th:action="@{/empleado/pedidos/{id}/anular(id=${p.id})}"
-                                  th:data-mensaje="'¿Anular el pedido #' + ${p.id} + '? Se borra y deja de contar en la caja.'"
-                                  onsubmit="return confirm(this.dataset.mensaje)">
-                                <button type="submit"
-                                        class="btn btn-sm btn-outline-danger">
-                                    Anular
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
+                        <tr th:each="p : ${pedidos}" th:classappend="${creado != null and p.id == creado} ? 'table-success'">
+                            <td th:text="'#' + ${p.id}">#1</td>
+                            <td>
+                                <span th:each="d, st : ${p.detalles}"
+                                      th:text="${d.cantidad} + ' × ' + ${d.plato.nombre} + (${st.last} ? '' : ', ')">1 × Plato</span>
+                            </td>
+                            <td class="text-right" th:text="'$ ' + ${#numbers.formatDecimal(p.total, 1, 'POINT', 2, 'COMMA')}">$ 0,00</td>
+                            <td class="text-right">
+                                <!-- El mensaje va en un data-*: Thymeleaf no deja armar texto dentro de onsubmit -->
+                                <form method="post" th:action="@{/empleado/pedidos/{id}/anular(id=${p.id})}"
+                                      th:data-mensaje="'¿Anular el pedido #' + ${p.id} + '? Se borra y deja de contar en la caja.'"
+                                      onsubmit="return confirm(this.dataset.mensaje)">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Anular</button>
+                                </form>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>

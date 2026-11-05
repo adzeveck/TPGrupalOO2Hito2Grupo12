@@ -19,6 +19,14 @@
             <span th:text="${cierre.cajero}">Cajero</span>
         </p>
 
+        <div class="alert alert-warning" th:if="${errorCerrar != null and cierre.puedeCerrar}" th:text="${errorCerrar}">Mensaje</div>
+        <div class="alert alert-success" th:if="${cierre.cerrada}">
+            Caja cerrada por <strong th:text="${cierre.cerradoPor}">Cajero</strong>: ya no se pueden cargar ni anular pedidos de hoy.
+        </div>
+        <div class="alert alert-info" th:if="${!cierre.cerrada and !cierre.puedeCerrar}">
+            Hoy no hay un festival activo para tu unidad: no hay caja para cerrar.
+        </div>
+
         <div class="card mb-4">
             <ul class="list-group list-group-flush">
                 <li class="list-group-item d-flex justify-content-between">
@@ -53,6 +61,11 @@
                 </table>
             </div>
         </div>
+
+        <form class="mt-3" method="post" th:if="${cierre.puedeCerrar}" th:action="@{/empleado/pedidos/cierre}"
+              onsubmit="return confirm('¿Cerrar la caja de hoy? Después no se van a poder cargar ni anular pedidos.')">
+            <button type="submit" class="btn btn-primary">Cerrar caja</button>
+        </form>
 
         <a class="btn btn-link px-0 mt-3" th:href="@{/empleado/pedidos}">Ver los pedidos de hoy</a>
     </div>

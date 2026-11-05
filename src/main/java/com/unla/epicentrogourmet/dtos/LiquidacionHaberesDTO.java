@@ -19,9 +19,9 @@ public class LiquidacionHaberesDTO {
 	private String puesto;          // "Cocinero", "Ayudante de cocina", "Cajero (turno noche)"...
 	private String unidad;
 	private String festival;
-	private LocalDate fechaInicio;
-	private LocalDate fechaFin;
-	private long dias;              // días que dura el festival
+	private LocalDate fechaInicio;  // primer día liquidado (en la liquidación general, el inicio del festival)
+	private LocalDate fechaFin;     // último día liquidado (en la liquidación general, el fin del festival)
+	private long dias;              // días del período liquidado
 
 	private BigDecimal sueldoBase;
 	private String conceptoAdicional; // "Plus por categoría" (cocina) o "Antigüedad (3 años)" (cajero)

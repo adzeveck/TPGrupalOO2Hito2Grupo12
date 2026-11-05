@@ -2,6 +2,7 @@ package com.unla.epicentrogourmet.controllers;
 
 import java.time.LocalDate;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -117,6 +118,7 @@ public class PedidoController {
 		try {
 			modelAndView.addObject("unidad", pedidoService.getUnidadDelCajero(authentication.getName()));
 			modelAndView.addObject("pedidos", pedidoService.getPedidosDeHoy(authentication.getName()));
+			modelAndView.addObject("cajaCerrada", pedidoService.isCajaCerrada(authentication.getName()));
 		} catch (ValidacionException e) {
 			modelAndView.addObject("errorGeneral", e.getMessage());
 		}
@@ -133,6 +135,22 @@ public class PedidoController {
 			modelAndView.addObject("errorGeneral", e.getMessage());
 		}
 		return modelAndView;
+	}
+
+	// POST /empleado/pedidos/cierre: guarda el cierre de hoy. Desde ahí no se cargan ni se anulan pedidos
+	@PostMapping("/cierre")
+	public ModelAndView cerrarCaja(Authentication authentication) {
+		try {
+			pedidoService.cerrarCaja(authentication.getName());
+		} catch (ValidacionException e) {
+			ModelAndView modelAndView = cierreDeCaja(authentication);
+			modelAndView.addObject("errorCerrar", e.getMessage());
+			return modelAndView;
+		} catch (DataIntegrityViolationException e) {
+			// Otro cajero de la unidad cerró al mismo tiempo: la base rechaza el segundo cierre del día
+		}
+		// Redirect (POST-Redirect-GET): un F5 no vuelve a intentar el cierre
+		return new ModelAndView("redirect:" + ViewRouteHelper.PEDIDOS_ROOT + "/cierre");
 	}
 
 	// GET /empleado/pedidos/nuevo: el formulario con un renglón por plato activo
