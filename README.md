@@ -66,8 +66,15 @@ Con las tablas ya creadas, ejecutar [src/main/resources/sql/datos_prueba.sql](sr
 sobre la misma base (por ejemplo desde MySQL Workbench). No hace falta reiniciar la aplicación.
 
 El script vacía todas las tablas antes de insertar, así que se puede volver a ejecutar para volver a los datos iniciales.
-Carga un festival activo del 01/10/2026 al 15/11/2026 con sus costos, tres unidades de venta, empleados de cada tipo,
-platos y 300 pedidos.
+Carga tres festivales con sus costos, para probar cada estado:
+
+| Festival | Fechas | Estado | Unidades | Pedidos |
+|---|---|---|---|---|
+| Festival Sabores de Invierno | 01/07/2026 al 20/07/2026 | Terminado | 4 | 240 |
+| Festival Gourmet de Primavera | 01/10/2026 al 15/11/2026 | En curso | 3 | 300 |
+| Festival del Verano | 01/12/2026 al 20/12/2026 | Por venir | 2 | Sin pedidos: un pedido solo puede tener la fecha de hoy |
+
+Cada unidad tiene su responsable, sus empleados y sus platos.
 
 ### 4. Entrar
 
@@ -83,6 +90,12 @@ Abrir [http://localhost:8080/index](http://localhost:8080/index). Todos los usua
 | `cocinero2@`, `lavaplatos2@`, `cajero2@epicentro.com` | Empleado | Tacos al Paso |
 | `cocinero3@`, `cajero3@epicentro.com` | Empleado | Pastas de la Nonna |
 | `ayudante3@epicentro.com` | Empleado | Dado de baja (no puede iniciar sesión) |
+| `responsable4@`, `cocinero4@`, `cajero4@epicentro.com` | Responsable y empleados | Hamburguesas del Sur (festival terminado) |
+| `responsable5@`, `cocinero5@`, `cajero5@epicentro.com` | Responsable y empleados | Empanadas Express (festival terminado) |
+| `responsable6@`, `cocinero6@`, `cajero6@epicentro.com` | Responsable y empleados | Guisos de Invierno (festival terminado) |
+| `responsable7@`, `cocinero7@`, `cajero7@epicentro.com` | Responsable y empleados | Café y Churros (festival terminado) |
+| `responsable8@`, `cocinero8@`, `cajero8@epicentro.com` | Responsable y empleados | Mariscos del Mar (festival por venir) |
+| `responsable9@`, `cocinero9@`, `cajero9@epicentro.com` | Responsable y empleados | Helados Artesanales (festival por venir) |
 
 ## Casos de uso implementados
 
