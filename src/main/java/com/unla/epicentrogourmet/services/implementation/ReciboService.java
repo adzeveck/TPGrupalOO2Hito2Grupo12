@@ -71,9 +71,11 @@ public class ReciboService implements IReciboService {
             concepto(conceptos, "Sueldo base", moneda(l.getSueldoBase()), NORMAL);
             concepto(conceptos, l.getConceptoAdicional(), moneda(l.getAdicional()), NORMAL);
             concepto(conceptos, "Subtotal", moneda(l.getSubtotal()), NEGRITA);
-            concepto(conceptos, "Liquidación por " + l.getDias() + " días: " + l.getPorcentaje()
-                    + "% del subtotal", "", NORMAL);
-            concepto(conceptos, "Total a cobrar", moneda(l.getTotal()), NEGRITA);
+            concepto(conceptos, "Días acumulados: " + l.getDiasAcumulados() + " (" + l.getPorcentaje()
+                    + "% del subtotal)", moneda(l.getCorresponde()), NORMAL);
+            concepto(conceptos, "Ya pagado en liquidaciones anteriores", "- " + moneda(l.getYaPagado()), NORMAL);
+            concepto(conceptos, "Total a cobrar por este período (" + l.getDias() + " días)",
+                    moneda(l.getTotal()), NEGRITA);
             documento.add(conceptos);
 
             Paragraph pie = new Paragraph("Emitido el " + LocalDate.now().format(FECHA), PIE);

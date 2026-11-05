@@ -112,4 +112,15 @@ public abstract class Personal {
 		}
 		return fechaIngreso.isAfter(festival.getFechaInicio()) ? fechaIngreso : festival.getFechaInicio();
 	}
+
+	// Días desde su primer día (su ingreso o el inicio del festival, el que llegue último) hasta una fecha
+	public long calcularDiasAcumulados(Festival festival, LocalDate hasta) {
+		return ChronoUnit.DAYS.between(calcularDesde(festival, null), hasta) + 1;
+	}
+
+	// Lo que le corresponde cobrar en total desde su primer día hasta una fecha: la escala se aplica a los
+	// días acumulados y no a cada tramo. Cerrando en uno o en varios tramos, la suma de lo pagado da igual
+	public BigDecimal calcularSueldoAcumulado(Festival festival, LocalDate hasta) {
+		return calcularSueldo(festival.getCosto(), hasta, calcularDiasAcumulados(festival, hasta));
+	}
 }

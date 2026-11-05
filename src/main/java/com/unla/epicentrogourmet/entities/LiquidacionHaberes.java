@@ -52,6 +52,16 @@ public class LiquidacionHaberes {
     @Column(length = 60)
     private String conceptoAdicional;
 
+    // Para el recibo: con cuántos días acumulados se aplicó la escala, lo que le correspondía en total y lo ya
+    // pagado en cierres anteriores. "porcentaje" es el de esos días acumulados y "total", lo pagado en este cierre.
+    // Nullable: las liquidaciones viejas no los tienen
+    @Column
+    private Integer diasAcumulados;
+    @Column(precision = 12, scale = 2)
+    private BigDecimal corresponde;
+    @Column(precision = 12, scale = 2)
+    private BigDecimal yaPagado;
+
     @Column(nullable = false)
     private Integer porcentaje;
     @Column(nullable = false, precision = 12, scale = 2)

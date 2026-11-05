@@ -1,6 +1,7 @@
 package com.unla.epicentrogourmet.services;
 
 import java.time.LocalDate;
+import java.math.BigDecimal;
 
 import com.unla.epicentrogourmet.dtos.LiquidacionHaberesDTO;
 import com.unla.epicentrogourmet.entities.Personal;
@@ -15,6 +16,7 @@ public interface ILiquidacionService {
 	// Cubre el festival completo
 	LiquidacionHaberesDTO calcular(Personal empleado);
 
-	// La de un período dentro del festival (desde y hasta, ambos incluidos): para el cierre por períodos
-	LiquidacionHaberesDTO calcular(Personal empleado, LocalDate desde, LocalDate hasta);
+	// Lo que se paga al cerrar un tramo (desde y hasta, ambos incluidos): la escala se aplica a los días
+	// acumulados del empleado y se resta lo que ya se le pagó
+	LiquidacionHaberesDTO calcularCierre(Personal empleado, LocalDate desde, LocalDate hasta, BigDecimal yaPagado);
 }

@@ -26,8 +26,10 @@
           <th>Puesto</th>
           <th>Período</th>
           <th class="text-right">Días</th>
-          <th class="text-right">%</th>
-          <th class="text-right">Total</th>
+          <th class="text-right">Acumulado</th>
+          <th class="text-right">Corresponde</th>
+          <th class="text-right">Ya pagado</th>
+          <th class="text-right">Pagado</th>
           <th>Cerrada el</th>
           <th></th>
         </tr>
@@ -38,7 +40,9 @@
           <td th:text="${l.puesto}">Cocinero</td>
           <td th:text="${#temporals.format(l.fechaInicio, 'dd/MM/yyyy')} + ' al ' + ${#temporals.format(l.fechaFin, 'dd/MM/yyyy')}">01/10/2026 al 15/10/2026</td>
           <td class="text-right" th:text="${l.dias}">15</td>
-          <td class="text-right" th:text="${l.porcentaje} + '%'">50%</td>
+          <td class="text-right" th:text="${l.diasAcumulados} + ' d · ' + ${l.porcentaje} + '%'">15 d · 50%</td>
+          <td class="text-right" th:text="'$ ' + ${#numbers.formatDecimal(l.corresponde, 1, 'POINT', 2, 'COMMA')}">$ 0,00</td>
+          <td class="text-right" th:text="'$ ' + ${#numbers.formatDecimal(l.yaPagado, 1, 'POINT', 2, 'COMMA')}">$ 0,00</td>
           <td class="text-right"><strong th:text="'$ ' + ${#numbers.formatDecimal(l.total, 1, 'POINT', 2, 'COMMA')}">$ 0,00</strong></td>
           <td th:text="${#temporals.format(l.fechaCierre, 'dd/MM/yyyy')}">04/11/2026</td>
           <td class="text-right">

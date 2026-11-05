@@ -6,6 +6,8 @@
 
 <main class="container py-4">
   <h1 class="mb-1">Liquidación de haberes del personal</h1>
+
+  <div th:if="${errorGeneral != null}">
     <div class="alert alert-warning mt-3" th:text="${errorGeneral}">Mensaje</div>
     <a class="btn btn-secondary" th:href="@{/responsable/index}">Volver</a>
   </div>

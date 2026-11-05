@@ -24,12 +24,15 @@ public class LiquidacionHaberesDTO {
 	private LocalDate fechaInicio;  // primer día liquidado (en la liquidación general, el inicio del festival)
 	private LocalDate fechaFin;     // último día liquidado (en la liquidación general, el fin del festival)
 	private long dias;              // días del período liquidado
+	private long diasAcumulados;      // desde su primer día hasta el fin del tramo: con estos días se aplica la escala
+	private BigDecimal corresponde;   // subtotal * porcentaje: lo que le toca cobrar en total
+	private BigDecimal yaPagado;      // lo liquidado en cierres anteriores
 
 	private BigDecimal sueldoBase;
 	private String conceptoAdicional; // "Plus por categoría" (cocina) o "Antigüedad (3 años)" (cajero)
 	private BigDecimal adicional;
 	private BigDecimal subtotal;      // sueldo base + adicional
 
-	private int porcentaje;           // 50, 100, 150...: sale de los días
-	private BigDecimal total;         // subtotal * porcentaje
+	private int porcentaje;           // 50, 100, 150...: sale de los días acumulados
+	private BigDecimal total;         // lo que se paga en este cierre: corresponde menos yaPagado
 }

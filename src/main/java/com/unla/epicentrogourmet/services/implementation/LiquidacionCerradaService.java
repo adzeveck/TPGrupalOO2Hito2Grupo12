@@ -1,6 +1,7 @@
 package com.unla.epicentrogourmet.services.implementation;
 
 import java.util.List;
+import java.math.BigDecimal;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -82,6 +83,13 @@ public class LiquidacionCerradaService implements ILiquidacionCerradaService {
         dto.setFechaInicio(liquidacion.getDesde());
         dto.setFechaFin(liquidacion.getHasta());
         dto.setDias(liquidacion.getDias());
+        // Las liquidaciones viejas no guardaron la acumulación: equivalen a un único pago sin pagos previos
+        dto.setDiasAcumulados(liquidacion.getDiasAcumulados() != null
+                ? liquidacion.getDiasAcumulados() : liquidacion.getDias());
+        dto.setCorresponde(liquidacion.getCorresponde() != null
+                ? liquidacion.getCorresponde() : liquidacion.getTotal());
+        dto.setYaPagado(liquidacion.getYaPagado() != null
+                ? liquidacion.getYaPagado() : BigDecimal.ZERO);
         dto.setSueldoBase(liquidacion.getSueldoBase());
         // Las cerradas antes de guardar el concepto no lo tienen: se muestra un texto genérico
         dto.setConceptoAdicional(liquidacion.getConceptoAdicional() != null
